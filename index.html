@@ -873,6 +873,124 @@ body{font-family:'DM Sans',sans-serif;background:#f4f1ea;color:var(--text);min-h
 .btn-modal-confirm.reschedule{ background:linear-gradient(135deg,#8b5cf6,#a78bfa); }
 .btn-modal-confirm:hover { transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,0.2); }
 
+
+/* ── ENROLLMENT STATUS PILLS ── */
+.enrol-pill {
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 10px;border-radius:100px;
+  font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;
+  white-space:nowrap;
+}
+.enrol-enrolled    { background:rgba(45,158,95,0.15);color:#1a7a45;border:1px solid rgba(45,158,95,0.3); }
+.enrol-considering { background:rgba(59,130,246,0.12);color:#1d4ed8;border:1px solid rgba(59,130,246,0.25); }
+.enrol-undecided   { background:rgba(245,158,11,0.12);color:#b45309;border:1px solid rgba(245,158,11,0.25); }
+.enrol-notEnrolling{ background:rgba(224,82,82,0.12);color:#b91c1c;border:1px solid rgba(224,82,82,0.25); }
+.enrol-interested  { background:rgba(139,92,246,0.12);color:#6d28d9;border:1px solid rgba(139,92,246,0.25); }
+.enrol-toured      { background:rgba(14,165,233,0.12);color:#0369a1;border:1px solid rgba(14,165,233,0.25); }
+.enrol-none        { background:rgba(0,0,0,0.05);color:#9a9080;border:1px solid rgba(0,0,0,0.1); }
+
+/* ── ENROLLMENT BUTTON ── */
+.btn-enroll-track {
+  display:inline-flex;align-items:center;gap:4px;
+  background:linear-gradient(135deg,#0a2818,#1a4a2a);
+  color:var(--gold-light);border:1px solid rgba(201,168,76,0.3);
+  border-radius:4px;padding:5px 10px;font-size:11px;font-weight:700;
+  cursor:pointer;letter-spacing:0.04em;font-family:'DM Sans',sans-serif;
+  transition:all 0.2s;white-space:nowrap;
+}
+.btn-enroll-track:hover { border-color:var(--gold);box-shadow:0 2px 12px rgba(201,168,76,0.2); }
+
+/* ── PIPELINE KANBAN BOARD ── */
+.pipeline-wrap { overflow-x:auto; padding-bottom:12px; }
+.pipeline-board {
+  display:grid;
+  grid-template-columns:repeat(6,minmax(200px,1fr));
+  gap:14px;
+  min-width:1100px;
+}
+.pipeline-col {
+  background:var(--white);border-radius:10px;
+  border:1px solid rgba(0,0,0,0.06);
+  box-shadow:0 2px 12px rgba(10,40,24,0.05);
+  overflow:hidden;
+}
+.pipeline-col-header {
+  padding:12px 14px;font-size:11px;font-weight:700;
+  letter-spacing:0.08em;text-transform:uppercase;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.pipeline-col-header .col-count {
+  background:rgba(255,255,255,0.3);
+  border-radius:100px;padding:2px 8px;
+  font-size:11px;font-weight:700;
+}
+.pipeline-col-body { padding:10px;display:flex;flex-direction:column;gap:8px;min-height:120px; }
+.pipeline-card {
+  background:var(--cream);border-radius:7px;padding:10px 12px;
+  border:1px solid rgba(0,0,0,0.06);cursor:pointer;
+  transition:transform 0.15s,box-shadow 0.15s;
+}
+.pipeline-card:hover { transform:translateY(-1px);box-shadow:0 4px 16px rgba(10,40,24,0.1); }
+.pipeline-card h4 { font-size:13px;font-weight:600;color:var(--navy);margin-bottom:3px; }
+.pipeline-card p  { font-size:11px;color:var(--gray-mid);line-height:1.4; }
+.pipeline-card .card-meta { display:flex;gap:6px;margin-top:6px;flex-wrap:wrap; }
+.pipeline-empty { font-size:12px;color:var(--gray-mid);text-align:center;padding:20px 10px;font-style:italic; }
+
+/* ── PIPELINE COL COLOURS ── */
+.col-interested  .pipeline-col-header { background:rgba(139,92,246,0.12);color:#6d28d9; }
+.col-toured      .pipeline-col-header { background:rgba(14,165,233,0.12);color:#0369a1; }
+.col-considering .pipeline-col-header { background:rgba(59,130,246,0.12);color:#1d4ed8; }
+.col-enrolled    .pipeline-col-header { background:rgba(45,158,95,0.15);color:#1a7a45; }
+.col-undecided   .pipeline-col-header { background:rgba(245,158,11,0.12);color:#b45309; }
+.col-notEnrolling .pipeline-col-header{ background:rgba(224,82,82,0.12);color:#b91c1c; }
+
+/* ── ENROLLMENT MODAL ── */
+.enrol-modal-backdrop {
+  position:fixed;inset:0;z-index:10001;
+  background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);
+  display:none;align-items:center;justify-content:center;padding:20px;
+}
+.enrol-modal-backdrop.open { display:flex;animation:fadeIn 0.2s ease; }
+.enrol-modal {
+  background:var(--white);border-radius:16px;
+  width:100%;max-width:460px;
+  box-shadow:0 24px 80px rgba(0,0,0,0.25);
+  overflow:hidden;animation:slideUp 0.25s ease;
+}
+.enrol-modal-header {
+  background:linear-gradient(135deg,#0a2818,#1a4a2a);
+  padding:20px 24px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.enrol-modal-header h3 { font-family:'DM Serif Display',serif;font-size:18px;color:var(--white);font-weight:400;margin:0; }
+.enrol-modal-header p  { font-size:12px;color:rgba(255,255,255,0.5);margin:3px 0 0; }
+.enrol-modal-header button { background:rgba(255,255,255,0.1);border:none;color:white;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px; }
+.enrol-gold-bar { height:3px;background:linear-gradient(90deg,#c9a84c,#e8c96e,#c9a84c); }
+.enrol-modal-body { padding:20px 24px; }
+.enrol-lead-info {
+  background:#f8f5ee;border-radius:8px;padding:12px 14px;
+  border-left:3px solid var(--gold);margin-bottom:16px;
+}
+.enrol-lead-info h4 { font-size:14px;font-weight:600;color:var(--navy); }
+.enrol-lead-info p  { font-size:12px;color:var(--gray-mid);margin-top:2px; }
+.enrol-options { display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px; }
+.enrol-option-btn {
+  padding:10px 12px;border-radius:8px;border:1.5px solid #e0dbd0;
+  background:var(--cream);cursor:pointer;text-align:left;
+  font-family:'DM Sans',sans-serif;transition:all 0.15s;
+}
+.enrol-option-btn:hover { border-color:var(--gold);background:var(--gold-pale); }
+.enrol-option-btn.selected { border-color:var(--gold);background:var(--gold-pale);box-shadow:0 0 0 2px rgba(201,168,76,0.25); }
+.enrol-option-btn .opt-icon { font-size:18px;margin-bottom:4px; }
+.enrol-option-btn .opt-label { font-size:12px;font-weight:700;color:var(--navy); }
+.enrol-option-btn .opt-sub   { font-size:10px;color:var(--gray-mid);margin-top:1px; }
+.enrol-notes { width:100%;padding:10px 12px;border:1.5px solid #e0dbd0;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;background:var(--cream);resize:vertical;min-height:70px;margin-bottom:14px; }
+.enrol-notes:focus { border-color:var(--gold);background:white; }
+.enrol-modal-footer { padding:0 24px 20px;display:flex;gap:10px;justify-content:flex-end; }
+.btn-enrol-cancel { background:var(--gray-light);border:none;color:var(--gray-mid);padding:10px 18px;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600; }
+.btn-enrol-save   { background:linear-gradient(135deg,var(--gold),var(--gold-light));color:var(--navy);border:none;padding:10px 22px;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;box-shadow:var(--shadow-btn);transition:all 0.2s; }
+.btn-enrol-save:hover { transform:translateY(-1px); }
+
 /* ── ADMIN TOGGLE BUTTON (bottom-right, subtle) ── */
 /* ── ADMIN BUTTON ── */
 .admin-toggle {
@@ -1380,7 +1498,6 @@ body.dashboard-active nav              { display: none !important; }
                 <option value="EY">Early Years Campus</option>
                 <option value="Primary">Primary Campus</option>
                 <option value="Secondary">Secondary Campus</option>
-                <option value="Multiple">Multiple Campuses</option>
               </select>
             </div>
             <div class="form-group">
@@ -1745,6 +1862,62 @@ body.dashboard-active nav              { display: none !important; }
   </div>
 </div>
 
+
+<!-- ENROLLMENT TRACKING MODAL -->
+<div class="enrol-modal-backdrop" id="enrol-modal-backdrop" onclick="if(event.target===this)closeEnrolModal()">
+  <div class="enrol-modal">
+    <div class="enrol-modal-header">
+      <div>
+        <h3>Update Enrollment Status</h3>
+        <p id="enrol-modal-name">Parent Name</p>
+      </div>
+      <button onclick="closeEnrolModal()">✕</button>
+    </div>
+    <div class="enrol-gold-bar"></div>
+    <div class="enrol-modal-body">
+      <div class="enrol-lead-info" id="enrol-lead-info"></div>
+      <p style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--navy);margin-bottom:10px;">Enrollment Decision</p>
+      <div class="enrol-options">
+        <button class="enrol-option-btn" onclick="selectEnrolStatus('Enrolled',this)">
+          <div class="opt-icon">🎓</div>
+          <div class="opt-label">Enrolled</div>
+          <div class="opt-sub">Confirmed & enrolled</div>
+        </button>
+        <button class="enrol-option-btn" onclick="selectEnrolStatus('Considering',this)">
+          <div class="opt-icon">🤔</div>
+          <div class="opt-label">Considering</div>
+          <div class="opt-sub">Still thinking it over</div>
+        </button>
+        <button class="enrol-option-btn" onclick="selectEnrolStatus('Interested',this)">
+          <div class="opt-icon">👀</div>
+          <div class="opt-label">Interested</div>
+          <div class="opt-sub">Showed strong interest</div>
+        </button>
+        <button class="enrol-option-btn" onclick="selectEnrolStatus('Toured',this)">
+          <div class="opt-icon">🏫</div>
+          <div class="opt-label">Toured</div>
+          <div class="opt-sub">Visited, awaiting decision</div>
+        </button>
+        <button class="enrol-option-btn" onclick="selectEnrolStatus('Undecided',this)">
+          <div class="opt-icon">⏸️</div>
+          <div class="opt-label">Hasn't Decided</div>
+          <div class="opt-sub">Needs more time</div>
+        </button>
+        <button class="enrol-option-btn" onclick="selectEnrolStatus('Not Enrolling',this)">
+          <div class="opt-icon">❌</div>
+          <div class="opt-label">Not Enrolling</div>
+          <div class="opt-sub">Will not proceed</div>
+        </button>
+      </div>
+      <textarea class="enrol-notes" id="enrol-notes" placeholder="Add notes — e.g. parent preferred Year 3, needs sibling discount, follow up in September…"></textarea>
+    </div>
+    <div class="enrol-modal-footer">
+      <button class="btn-enrol-cancel" onclick="closeEnrolModal()">Cancel</button>
+      <button class="btn-enrol-save" onclick="saveEnrolStatus()">💾 Save Status</button>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST NOTIFICATION -->
 <div class="toast" id="toast"></div>
 
@@ -1752,7 +1925,13 @@ body.dashboard-active nav              { display: none !important; }
 <div class="main" style="padding-bottom:0;">
   <div class="dash-tabs" id="dash-tabs">
     <button class="dash-tab active" onclick="switchDashTab('overview',this)" id="tab-overview">
-      📊 Overview & Leads
+      📊 Overview
+    </button>
+    <button class="dash-tab" onclick="switchDashTab('requests',this)" id="tab-requests">
+      🗓 Tour Requests <span class="tab-count" id="req-tab-count">0</span>
+    </button>
+    <button class="dash-tab" onclick="switchDashTab('pipeline',this)" id="tab-pipeline">
+      📈 Leads Pipeline <span class="tab-count" id="pipe-tab-count">0</span>
     </button>
     <button class="dash-tab" onclick="switchDashTab('calendar',this)" id="tab-calendar">
       📅 Calendar <span class="tab-count" id="cal-tab-count">0</span>
@@ -1765,6 +1944,16 @@ body.dashboard-active nav              { display: none !important; }
 
 <!-- OVERVIEW TAB -->
 <div id="tab-content-overview" class="main" id="main-content">
+  <!-- Populated by JS -->
+</div>
+
+<!-- TOUR REQUESTS TAB -->
+<div id="tab-content-requests" class="main" style="display:none;">
+  <!-- Populated by JS -->
+</div>
+
+<!-- LEADS PIPELINE TAB -->
+<div id="tab-content-pipeline" class="main" style="display:none;">
   <!-- Populated by JS -->
 </div>
 
@@ -2732,7 +2921,6 @@ function renderTable(leads) {
         <option value="EY">Early Years</option>
         <option value="Primary">Primary</option>
         <option value="Secondary">Secondary</option>
-        <option value="Multiple">Multiple</option>
       </select>
       <select id="${statusFilter}" class="filter-select" onchange="filterTable('${searchId}','${filterId}','${statusFilter}')">
         <option value="">All Statuses (${counts.All})</option>
@@ -3080,12 +3268,14 @@ const OPEN_DAY_DATE = { year: 2026, month: 6, day: 8 }; // 8 July 2026
 function switchDashTab(tab, btn) {
   document.querySelectorAll('.dash-tab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
-  ['overview','calendar','schedule'].forEach(t => {
+  ['overview','requests','pipeline','calendar','schedule'].forEach(t => {
     const el = document.getElementById('tab-content-' + t);
     if(el) el.style.display = t === tab ? 'block' : 'none';
   });
-  if(tab === 'calendar') renderCalendar();
-  if(tab === 'schedule') renderSchedule();
+  if(tab === 'calendar')  renderCalendar();
+  if(tab === 'schedule')  renderSchedule();
+  if(tab === 'requests')  renderRequests();
+  if(tab === 'pipeline')  renderPipeline();
 }
 
 // ── loadData already defined above as async — tab count update handled there
@@ -3332,6 +3522,283 @@ function renderSchedule() {
 
 // Also update the modal to allow scheduling a visit date & follow-up date
 // These get saved with the lead and appear on the calendar
+
+
+// ══════════════════════════════════════════════════════════════════
+// TOUR REQUESTS TAB — Approve / Decline / Reschedule + Enroll tracking
+// ══════════════════════════════════════════════════════════════════
+function renderRequests() {
+  const container = document.getElementById('tab-content-requests');
+  if(!container) return;
+  const leads = getLeads();
+  if(!leads.length) {
+    container.innerHTML = '<div class="panel"><div class="day-no-events" style="padding:48px;">No tour requests yet.</div></div>';
+    return;
+  }
+
+  const statusPill = (s) => {
+    const map = { 'Pending':'status-pending','Approved':'status-approved','Declined':'status-declined','Rescheduled':'status-rescheduled' };
+    const icons = { 'Pending':'⏳','Approved':'✅','Declined':'❌','Rescheduled':'📅' };
+    const st = s || 'Pending';
+    return `<span class="status-pill ${map[st]||'status-pending'}">${icons[st]||'⏳'} ${st}</span>`;
+  };
+
+  const enrolPill = (es) => {
+    if(!es) return `<span class="enrol-pill enrol-none">— Not set</span>`;
+    const map = {
+      'Enrolled':'enrol-enrolled','Considering':'enrol-considering',
+      'Interested':'enrol-interested','Toured':'enrol-toured',
+      'Undecided':'enrol-undecided','Not Enrolling':'enrol-notEnrolling'
+    };
+    const icons = { 'Enrolled':'🎓','Considering':'🤔','Interested':'👀','Toured':'🏫','Undecided':'⏸️','Not Enrolling':'❌' };
+    return `<span class="enrol-pill ${map[es]||'enrol-none'}">${icons[es]||''} ${es}</span>`;
+  };
+
+  const campusBadge = (c) => {
+    const map = {'EY':'badge-ey','Primary':'badge-pri','Secondary':'badge-sec'};
+    return `<span class="badge ${map[c]||'badge-ey'}">${c||'—'}</span>`;
+  };
+
+  const searchId  = 'req-search-' + Date.now();
+  const filterId  = 'req-filter-' + Date.now();
+  const statusFId = 'req-sf-' + Date.now();
+
+  const counts = { All:leads.length, Pending:0, Approved:0, Declined:0, Rescheduled:0 };
+  leads.forEach(l => {
+    const st = l.status||'Pending';
+    if(counts[st] !== undefined) counts[st]++; else counts['Pending']++;
+  });
+
+  const rows = leads.slice().reverse().map(l => {
+    const st = l.status || 'Pending';
+    const isPending = st === 'Pending' || st === 'New';
+    const actionBtns = isPending
+      ? `<div class="action-btns">
+          <button class="btn-approve"    onclick="openActionModal('approve','${l.ts}')">✅ Approve</button>
+          <button class="btn-decline"    onclick="openActionModal('decline','${l.ts}')">❌ Decline</button>
+          <button class="btn-reschedule" onclick="openActionModal('reschedule','${l.ts}')">📅 Reschedule</button>
+         </div>`
+      : `<div class="action-btns" style="flex-direction:column;align-items:flex-start;gap:5px;">
+          <div style="display:flex;gap:5px;align-items:center;">
+            ${statusPill(st)}
+            <button style="background:none;border:1px solid #e0dbd0;color:var(--gray-mid);padding:3px 7px;border-radius:4px;font-size:10px;cursor:pointer;font-family:'DM Sans',sans-serif;" onclick="resetToPending('${l.ts}')">↩</button>
+          </div>
+          <button class="btn-enroll-track" onclick="openEnrolModal('${l.ts}')">📈 Enrollment Status</button>
+         </div>`;
+
+    return `<tr data-campus="${l.campus||''}" data-name="${(l.fname+' '+l.lname).toLowerCase()}" data-status="${st}">
+      <td style="font-weight:600;color:var(--navy);white-space:nowrap;">${l.fname||'—'} ${l.lname||''}</td>
+      <td>${l.nationality||'—'}</td>
+      <td><a href="tel:${l.phone}" style="color:var(--navy);text-decoration:none;">${l.phone||'—'}</a></td>
+      <td><a href="mailto:${l.email}" style="color:var(--gold);text-decoration:none;font-size:12px;">${l.email||'—'}</a></td>
+      <td>${campusBadge(l.campus)}</td>
+      <td style="text-align:center;">${l.num_children||'—'}</td>
+      <td style="text-align:center;">${l.translator==='Yes'?'<span style="color:#2d9e5f;font-weight:600;">✓</span>':'—'}</td>
+      <td>${new Date(l.ts).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'2-digit'})}</td>
+      <td>${enrolPill(l.enrol_status)}</td>
+      <td>${actionBtns}</td>
+      <td><button class="delete-btn" onclick="deleteLead('${l.ts}')" title="Remove">🗑</button></td>
+    </tr>`;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="panel" style="margin-bottom:20px;">
+      <div class="panel-title">Tour Requests <span>${leads.length} Total</span></div>
+      <div class="table-controls">
+        <input type="text" id="${searchId}" class="search-input" placeholder="🔍 Search by name, email, phone…" oninput="filterReqTable('${searchId}','${filterId}','${statusFId}')">
+        <select id="${filterId}" class="filter-select" onchange="filterReqTable('${searchId}','${filterId}','${statusFId}')">
+          <option value="">All Campuses</option>
+          <option value="EY">Early Years</option>
+          <option value="Primary">Primary</option>
+          <option value="Secondary">Secondary</option>
+        </select>
+        <select id="${statusFId}" class="filter-select" onchange="filterReqTable('${searchId}','${filterId}','${statusFId}')">
+          <option value="">All Statuses (${counts.All})</option>
+          <option value="Pending">⏳ Pending (${counts.Pending})</option>
+          <option value="Approved">✅ Approved (${counts.Approved})</option>
+          <option value="Declined">❌ Declined (${counts.Declined})</option>
+          <option value="Rescheduled">📅 Rescheduled (${counts.Rescheduled})</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table class="leads-table" id="req-tbl">
+          <thead><tr>
+            <th>Parent Name</th><th>Nationality</th><th>Phone</th><th>Email</th>
+            <th>Campus</th><th>Children</th><th>Translator</th><th>Date</th>
+            <th>Enrollment</th><th>Tour Status</th><th></th>
+          </tr></thead>
+          <tbody id="req-tbody">${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+function filterReqTable(searchId, filterId, statusFId) {
+  const q = (document.getElementById(searchId)?.value||'').toLowerCase();
+  const campus = document.getElementById(filterId)?.value||'';
+  const status = document.getElementById(statusFId)?.value||'';
+  document.querySelectorAll('#req-tbody tr').forEach(row => {
+    const matchQ = !q || row.textContent.toLowerCase().includes(q);
+    const matchC = !campus || row.dataset.campus === campus;
+    const matchS = !status || row.dataset.status === status || (status==='Pending'&&(!row.dataset.status||row.dataset.status==='New'));
+    row.style.display = matchQ && matchC && matchS ? '' : 'none';
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════
+// LEADS PIPELINE TAB — Kanban enrollment tracking board
+// ══════════════════════════════════════════════════════════════════
+function renderPipeline() {
+  const container = document.getElementById('tab-content-pipeline');
+  if(!container) return;
+  const leads = getLeads();
+
+  const stages = [
+    { key:'Interested',    label:'Interested',     icon:'👀', cls:'col-interested' },
+    { key:'Toured',        label:'Toured',          icon:'🏫', cls:'col-toured' },
+    { key:'Considering',   label:'Considering',     icon:'🤔', cls:'col-considering' },
+    { key:'Enrolled',      label:'Enrolled',        icon:'🎓', cls:'col-enrolled' },
+    { key:'Undecided',     label:"Hasn't Decided",  icon:'⏸️', cls:'col-undecided' },
+    { key:'Not Enrolling', label:'Not Enrolling',   icon:'❌', cls:'col-notEnrolling' },
+  ];
+
+  const campusBadge = (c) => {
+    const map = {'EY':'badge-ey','Primary':'badge-pri','Secondary':'badge-sec'};
+    return `<span class="badge ${map[c]||'badge-ey'}" style="font-size:9px;">${c||'?'}</span>`;
+  };
+
+  const untracked = leads.filter(l => !l.enrol_status);
+  const totalTracked = leads.filter(l => l.enrol_status).length;
+
+  const cols = stages.map(stage => {
+    const stagLeads = leads.filter(l => l.enrol_status === stage.key);
+    const cards = stagLeads.map(l => `
+      <div class="pipeline-card" onclick="openEnrolModal('${l.ts}')">
+        <h4>${l.fname||'—'} ${l.lname||''}</h4>
+        <p>📞 ${l.phone||'—'}</p>
+        <div class="card-meta">
+          ${campusBadge(l.campus)}
+          <span style="font-size:10px;color:var(--gray-mid);">${l.num_children||'?'} child(ren)</span>
+        </div>
+        ${l.enrol_notes ? `<p style="font-size:11px;color:var(--gray-mid);margin-top:6px;font-style:italic;">"${l.enrol_notes.slice(0,60)}${l.enrol_notes.length>60?'…':''}"</p>` : ''}
+      </div>`).join('');
+
+    return `<div class="pipeline-col ${stage.cls}">
+      <div class="pipeline-col-header">
+        <span>${stage.icon} ${stage.label}</span>
+        <span class="col-count">${stagLeads.length}</span>
+      </div>
+      <div class="pipeline-col-body">
+        ${cards || '<div class="pipeline-empty">No leads here yet</div>'}
+      </div>
+    </div>`;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="panel" style="margin-bottom:20px;">
+      <div class="panel-title">
+        Enrollment Pipeline
+        <span>${totalTracked} of ${leads.length} tracked · ${untracked.length} not yet assigned</span>
+      </div>
+      ${untracked.length > 0 ? `
+        <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:8px;padding:10px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+          <span style="font-size:16px;">⚠️</span>
+          <span style="font-size:13px;color:#b45309;font-weight:500;">${untracked.length} request${untracked.length>1?'s':''} not yet assigned an enrollment status — go to <strong>Tour Requests</strong> tab to update.</span>
+        </div>` : ''}
+      <div class="pipeline-wrap">
+        <div class="pipeline-board">${cols}</div>
+      </div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// ENROLLMENT MODAL JS
+// ══════════════════════════════════════════════════════════════════
+let _enrolTs = null;
+let _enrolSelectedStatus = null;
+
+function openEnrolModal(ts) {
+  const leads = getLeads();
+  const lead = leads.find(l => l.ts === ts);
+  if(!lead) return;
+  _enrolTs = ts;
+  _enrolSelectedStatus = lead.enrol_status || null;
+
+  document.getElementById('enrol-modal-name').textContent = `${lead.fname} ${lead.lname}`;
+  document.getElementById('enrol-lead-info').innerHTML = `
+    <h4>${lead.fname} ${lead.lname}</h4>
+    <p>📞 ${lead.phone||'—'} · 📧 ${lead.email||'—'} · 🏫 ${lead.campus||'?'} Campus</p>
+    <p>Tour status: <strong>${lead.status||'Pending'}</strong>${lead.enrol_status?' · Enrollment: <strong>'+lead.enrol_status+'</strong>':''}</p>
+  `;
+
+  // Pre-select existing status
+  document.querySelectorAll('.enrol-option-btn').forEach(btn => {
+    btn.classList.toggle('selected', btn.getAttribute('onclick').includes("'"+lead.enrol_status+"'"));
+  });
+
+  // Pre-fill notes
+  document.getElementById('enrol-notes').value = lead.enrol_notes || '';
+
+  document.getElementById('enrol-modal-backdrop').classList.add('open');
+}
+
+function selectEnrolStatus(status, btn) {
+  _enrolSelectedStatus = status;
+  document.querySelectorAll('.enrol-option-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function closeEnrolModal() {
+  document.getElementById('enrol-modal-backdrop').classList.remove('open');
+  _enrolTs = null; _enrolSelectedStatus = null;
+}
+
+function saveEnrolStatus() {
+  if(!_enrolTs) return;
+  if(!_enrolSelectedStatus) { showToast('⚠️ Please select an enrollment status'); return; }
+
+  const leads = getLeads();
+  const idx = leads.findIndex(l => l.ts === _enrolTs);
+  if(idx === -1) return;
+
+  leads[idx].enrol_status = _enrolSelectedStatus;
+  leads[idx].enrol_notes  = document.getElementById('enrol-notes').value.trim();
+  leads[idx].enrol_updated = new Date().toISOString();
+
+  // Save locally
+  localStorage.setItem('pbis_leads', JSON.stringify(leads));
+  _leadsCache = leads;
+
+  // Sync to Sheets
+  fetch(SHEETS_URL, {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      action: 'updateEnrollment',
+      ts: _enrolTs,
+      email: leads[idx].email || '',
+      enrol_status: _enrolSelectedStatus,
+      enrol_notes: leads[idx].enrol_notes
+    })
+  }).catch(()=>{});
+
+  showToast(`✅ ${leads[idx].fname} marked as ${_enrolSelectedStatus}`);
+  closeEnrolModal();
+
+  // Refresh whichever tab is active
+  const activeTab = document.querySelector('.dash-tab.active');
+  if(activeTab) {
+    const tabId = activeTab.id.replace('tab-','');
+    if(tabId === 'requests') renderRequests();
+    if(tabId === 'pipeline') renderPipeline();
+    if(tabId === 'overview') loadData();
+  }
+
+  // Update pipeline count
+  const pipeCount = leads.filter(l => l.enrol_status).length;
+  const pipeEl = document.getElementById('pipe-tab-count');
+  if(pipeEl) pipeEl.textContent = pipeCount;
+}
 
 </script>
 </body>
