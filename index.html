@@ -1924,7 +1924,7 @@ body.dashboard-active nav              { display: none !important; }
         </button>
         <button class="enrol-option-btn" onclick="selectEnrolStatus('Undecided',this)">
           <div class="opt-icon">⏸️</div>
-          <div class="opt-label">Hasn't Decided</div>
+          <div class="opt-label">Has Not Decided</div>
           <div class="opt-sub">Needs more time</div>
         </button>
         <button class="enrol-option-btn" onclick="selectEnrolStatus('Not Enrolling',this)">
@@ -3582,18 +3582,18 @@ function renderRequests() {
       {v:'Toured',       l:'🏫 Toured'},
       {v:'Considering',  l:'🤔 Considering'},
       {v:'Enrolled',     l:'🎓 Enrolled'},
-      {v:'Undecided',    l:'⏸️ Hasn't Decided'},
+      {v:'Undecided',    l:'⏸️ Has Not Decided'},
       {v:'Not Enrolling',l:'❌ Not Enrolling'},
     ];
     const optHtml = opts.map(o =>
       `<option value="${o.v}" ${es===o.v?'selected':''}>${o.l}</option>`
     ).join('');
     return `<div class="enrol-inline-wrap">
-      <select class="enrol-inline-select ${cls}" id="enrol-sel-${l.ts.replace(/[^a-z0-9]/gi,'')}"
+      <select class="enrol-inline-select ${cls}" id="enrol-sel-${safeId(l.ts)}"
         onchange="quickEnrolUpdate('${l.ts}', this)">
         ${optHtml}
       </select>
-      <span class="enrol-saved-flash" id="enrol-flash-${l.ts.replace(/[^a-z0-9]/gi,'')}">✓ Saved</span>
+      <span class="enrol-saved-flash" id="enrol-flash-${safeId(l.ts)}">✓ Saved</span>
     </div>`;
   };
 
@@ -3674,6 +3674,10 @@ function renderRequests() {
     </div>`;
 }
 
+
+// Safe ID helper
+function safeId(ts) { return ts ? ts.replace(/[^a-zA-Z0-9]/g, '') : ''; }
+
 // ── Quick inline enrollment update — no modal needed
 function quickEnrolUpdate(ts, selectEl) {
   const newStatus = selectEl.value;
@@ -3695,7 +3699,7 @@ function quickEnrolUpdate(ts, selectEl) {
   selectEl.className = 'enrol-inline-select ' + (clsMap[newStatus]||'es-none');
 
   // Flash "✓ Saved"
-  const flashId = 'enrol-flash-' + ts.replace(/[^a-z0-9]/gi,'');
+  const flashId = 'enrol-flash-' + safeId(ts);
   const flash = document.getElementById(flashId);
   if(flash) { flash.style.display='block'; setTimeout(()=>{ flash.style.display='none'; }, 1500); }
 
@@ -3743,7 +3747,7 @@ function renderPipeline() {
     { key:'Toured',        label:'Toured',          icon:'🏫', cls:'col-toured' },
     { key:'Considering',   label:'Considering',     icon:'🤔', cls:'col-considering' },
     { key:'Enrolled',      label:'Enrolled',        icon:'🎓', cls:'col-enrolled' },
-    { key:'Undecided',     label:"Hasn't Decided",  icon:'⏸️', cls:'col-undecided' },
+    { key:'Undecided',     label:"Has Not Decided",  icon:'⏸️', cls:'col-undecided' },
     { key:'Not Enrolling', label:'Not Enrolling',   icon:'❌', cls:'col-notEnrolling' },
   ];
 
