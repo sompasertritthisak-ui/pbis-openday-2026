@@ -991,6 +991,30 @@ body{font-family:'DM Sans',sans-serif;background:#f4f1ea;color:var(--text);min-h
 .btn-enrol-save   { background:linear-gradient(135deg,var(--gold),var(--gold-light));color:var(--navy);border:none;padding:10px 22px;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;box-shadow:var(--shadow-btn);transition:all 0.2s; }
 .btn-enrol-save:hover { transform:translateY(-1px); }
 
+
+/* ── INLINE ENROLLMENT DROPDOWN ── */
+.enrol-inline-wrap { display:flex; flex-direction:column; gap:4px; min-width:150px; }
+.enrol-inline-select {
+  padding:6px 10px;
+  border-radius:6px;
+  font-family:'DM Sans',sans-serif;
+  font-size:11px;font-weight:600;
+  cursor:pointer;outline:none;
+  border:1.5px solid rgba(0,0,0,0.1);
+  transition:all 0.2s;
+  width:100%;
+  appearance:auto;
+}
+.enrol-inline-select:focus { border-color:var(--gold); }
+.enrol-inline-select.es-none        { background:#f5f5f5;color:#9a9080;border-color:#e0dbd0; }
+.enrol-inline-select.es-Interested  { background:rgba(139,92,246,0.1);color:#6d28d9;border-color:rgba(139,92,246,0.3); }
+.enrol-inline-select.es-Toured      { background:rgba(14,165,233,0.1);color:#0369a1;border-color:rgba(14,165,233,0.3); }
+.enrol-inline-select.es-Considering { background:rgba(59,130,246,0.1);color:#1d4ed8;border-color:rgba(59,130,246,0.3); }
+.enrol-inline-select.es-Enrolled    { background:rgba(45,158,95,0.12);color:#1a7a45;border-color:rgba(45,158,95,0.3); }
+.enrol-inline-select.es-Undecided   { background:rgba(245,158,11,0.1);color:#b45309;border-color:rgba(245,158,11,0.3); }
+.enrol-inline-select.es-notEnrolling{ background:rgba(224,82,82,0.1);color:#b91c1c;border-color:rgba(224,82,82,0.3); }
+.enrol-saved-flash { font-size:10px;color:#2d9e5f;font-weight:600;display:none;animation:fadeIn 0.3s ease; }
+
 /* ── ADMIN TOGGLE BUTTON (bottom-right, subtle) ── */
 /* ── ADMIN BUTTON ── */
 .admin-toggle {
@@ -3537,21 +3561,40 @@ function renderRequests() {
   }
 
   const statusPill = (s) => {
-    const map = { 'Pending':'status-pending','Approved':'status-approved','Declined':'status-declined','Rescheduled':'status-rescheduled' };
-    const icons = { 'Pending':'⏳','Approved':'✅','Declined':'❌','Rescheduled':'📅' };
+    const map = {'Pending':'status-pending','Approved':'status-approved','Declined':'status-declined','Rescheduled':'status-rescheduled'};
+    const icons = {'Pending':'⏳','Approved':'✅','Declined':'❌','Rescheduled':'📅'};
     const st = s || 'Pending';
     return `<span class="status-pill ${map[st]||'status-pending'}">${icons[st]||'⏳'} ${st}</span>`;
   };
 
-  const enrolPill = (es) => {
-    if(!es) return `<span class="enrol-pill enrol-none">— Not set</span>`;
-    const map = {
-      'Enrolled':'enrol-enrolled','Considering':'enrol-considering',
-      'Interested':'enrol-interested','Toured':'enrol-toured',
-      'Undecided':'enrol-undecided','Not Enrolling':'enrol-notEnrolling'
+  // ── Inline enrollment dropdown — changes status directly in the table cell
+  const enrolDropdown = (l) => {
+    const es = l.enrol_status || '';
+    const clsMap = {
+      '':'es-none','Interested':'es-Interested','Toured':'es-Toured',
+      'Considering':'es-Considering','Enrolled':'es-Enrolled',
+      'Undecided':'es-Undecided','Not Enrolling':'es-notEnrolling'
     };
-    const icons = { 'Enrolled':'🎓','Considering':'🤔','Interested':'👀','Toured':'🏫','Undecided':'⏸️','Not Enrolling':'❌' };
-    return `<span class="enrol-pill ${map[es]||'enrol-none'}">${icons[es]||''} ${es}</span>`;
+    const cls = clsMap[es] || 'es-none';
+    const opts = [
+      {v:'',       l:'— Not Set'},
+      {v:'Interested',   l:'👀 Interested'},
+      {v:'Toured',       l:'🏫 Toured'},
+      {v:'Considering',  l:'🤔 Considering'},
+      {v:'Enrolled',     l:'🎓 Enrolled'},
+      {v:'Undecided',    l:'⏸️ Hasn't Decided'},
+      {v:'Not Enrolling',l:'❌ Not Enrolling'},
+    ];
+    const optHtml = opts.map(o =>
+      `<option value="${o.v}" ${es===o.v?'selected':''}>${o.l}</option>`
+    ).join('');
+    return `<div class="enrol-inline-wrap">
+      <select class="enrol-inline-select ${cls}" id="enrol-sel-${l.ts.replace(/[^a-z0-9]/gi,'')}"
+        onchange="quickEnrolUpdate('${l.ts}', this)">
+        ${optHtml}
+      </select>
+      <span class="enrol-saved-flash" id="enrol-flash-${l.ts.replace(/[^a-z0-9]/gi,'')}">✓ Saved</span>
+    </div>`;
   };
 
   const campusBadge = (c) => {
@@ -3562,8 +3605,9 @@ function renderRequests() {
   const searchId  = 'req-search-' + Date.now();
   const filterId  = 'req-filter-' + Date.now();
   const statusFId = 'req-sf-' + Date.now();
+  const enrolFId  = 'req-ef-'  + Date.now();
 
-  const counts = { All:leads.length, Pending:0, Approved:0, Declined:0, Rescheduled:0 };
+  const counts = {All:leads.length, Pending:0, Approved:0, Declined:0, Rescheduled:0};
   leads.forEach(l => {
     const st = l.status||'Pending';
     if(counts[st] !== undefined) counts[st]++; else counts['Pending']++;
@@ -3572,21 +3616,18 @@ function renderRequests() {
   const rows = leads.slice().reverse().map(l => {
     const st = l.status || 'Pending';
     const isPending = st === 'Pending' || st === 'New';
-    const actionBtns = isPending
+    const tourActions = isPending
       ? `<div class="action-btns">
-          <button class="btn-approve"    onclick="openActionModal('approve','${l.ts}')">✅ Approve</button>
-          <button class="btn-decline"    onclick="openActionModal('decline','${l.ts}')">❌ Decline</button>
-          <button class="btn-reschedule" onclick="openActionModal('reschedule','${l.ts}')">📅 Reschedule</button>
+           <button class="btn-approve"    onclick="openActionModal('approve','${l.ts}')">✅ Approve</button>
+           <button class="btn-decline"    onclick="openActionModal('decline','${l.ts}')">❌ Decline</button>
+           <button class="btn-reschedule" onclick="openActionModal('reschedule','${l.ts}')">📅 Reschedule</button>
          </div>`
-      : `<div class="action-btns" style="flex-direction:column;align-items:flex-start;gap:5px;">
-          <div style="display:flex;gap:5px;align-items:center;">
-            ${statusPill(st)}
-            <button style="background:none;border:1px solid #e0dbd0;color:var(--gray-mid);padding:3px 7px;border-radius:4px;font-size:10px;cursor:pointer;font-family:'DM Sans',sans-serif;" onclick="resetToPending('${l.ts}')">↩</button>
-          </div>
-          <button class="btn-enroll-track" onclick="openEnrolModal('${l.ts}')">📈 Enrollment Status</button>
+      : `<div class="action-btns" style="align-items:center;">
+           ${statusPill(st)}
+           <button style="background:none;border:1px solid #e0dbd0;color:var(--gray-mid);padding:3px 7px;border-radius:4px;font-size:10px;cursor:pointer;font-family:'DM Sans',sans-serif;" onclick="resetToPending('${l.ts}')">↩</button>
          </div>`;
 
-    return `<tr data-campus="${l.campus||''}" data-name="${(l.fname+' '+l.lname).toLowerCase()}" data-status="${st}">
+    return `<tr data-campus="${l.campus||''}" data-name="${(l.fname+' '+l.lname).toLowerCase()}" data-status="${st}" data-enrol="${l.enrol_status||''}">
       <td style="font-weight:600;color:var(--navy);white-space:nowrap;">${l.fname||'—'} ${l.lname||''}</td>
       <td>${l.nationality||'—'}</td>
       <td><a href="tel:${l.phone}" style="color:var(--navy);text-decoration:none;">${l.phone||'—'}</a></td>
@@ -3594,9 +3635,9 @@ function renderRequests() {
       <td>${campusBadge(l.campus)}</td>
       <td style="text-align:center;">${l.num_children||'—'}</td>
       <td style="text-align:center;">${l.translator==='Yes'?'<span style="color:#2d9e5f;font-weight:600;">✓</span>':'—'}</td>
-      <td>${new Date(l.ts).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'2-digit'})}</td>
-      <td>${enrolPill(l.enrol_status)}</td>
-      <td>${actionBtns}</td>
+      <td style="white-space:nowrap;">${new Date(l.ts).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'2-digit'})}</td>
+      <td>${enrolDropdown(l)}</td>
+      <td>${tourActions}</td>
       <td><button class="delete-btn" onclick="deleteLead('${l.ts}')" title="Remove">🗑</button></td>
     </tr>`;
   }).join('');
@@ -3613,7 +3654,7 @@ function renderRequests() {
           <option value="Secondary">Secondary</option>
         </select>
         <select id="${statusFId}" class="filter-select" onchange="filterReqTable('${searchId}','${filterId}','${statusFId}')">
-          <option value="">All Statuses (${counts.All})</option>
+          <option value="">All Tour Statuses (${counts.All})</option>
           <option value="Pending">⏳ Pending (${counts.Pending})</option>
           <option value="Approved">✅ Approved (${counts.Approved})</option>
           <option value="Declined">❌ Declined (${counts.Declined})</option>
@@ -3625,12 +3666,56 @@ function renderRequests() {
           <thead><tr>
             <th>Parent Name</th><th>Nationality</th><th>Phone</th><th>Email</th>
             <th>Campus</th><th>Children</th><th>Translator</th><th>Date</th>
-            <th>Enrollment</th><th>Tour Status</th><th></th>
+            <th>Enrollment Status</th><th>Tour Status</th><th></th>
           </tr></thead>
           <tbody id="req-tbody">${rows}</tbody>
         </table>
       </div>
     </div>`;
+}
+
+// ── Quick inline enrollment update — no modal needed
+function quickEnrolUpdate(ts, selectEl) {
+  const newStatus = selectEl.value;
+  const leads = getLeads();
+  const idx = leads.findIndex(l => l.ts === ts);
+  if(idx === -1) return;
+
+  leads[idx].enrol_status  = newStatus;
+  leads[idx].enrol_updated = new Date().toISOString();
+  localStorage.setItem('pbis_leads', JSON.stringify(leads));
+  _leadsCache = leads;
+
+  // Update select colour class
+  const clsMap = {
+    '':'es-none','Interested':'es-Interested','Toured':'es-Toured',
+    'Considering':'es-Considering','Enrolled':'es-Enrolled',
+    'Undecided':'es-Undecided','Not Enrolling':'es-notEnrolling'
+  };
+  selectEl.className = 'enrol-inline-select ' + (clsMap[newStatus]||'es-none');
+
+  // Flash "✓ Saved"
+  const flashId = 'enrol-flash-' + ts.replace(/[^a-z0-9]/gi,'');
+  const flash = document.getElementById(flashId);
+  if(flash) { flash.style.display='block'; setTimeout(()=>{ flash.style.display='none'; }, 1500); }
+
+  // Sync to Google Sheets
+  fetch(SHEETS_URL, {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      action: 'updateEnrollment',
+      ts: ts,
+      email: leads[idx].email || '',
+      enrol_status: newStatus,
+      enrol_notes: leads[idx].enrol_notes || ''
+    })
+  }).catch(()=>{});
+
+  // Update pipeline tab count
+  const pipeCount = leads.filter(l => l.enrol_status).length;
+  const pipeEl = document.getElementById('pipe-tab-count');
+  if(pipeEl) pipeEl.textContent = pipeCount;
 }
 
 function filterReqTable(searchId, filterId, statusFId) {
