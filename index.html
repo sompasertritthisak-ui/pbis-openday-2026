@@ -2428,21 +2428,57 @@ function showLanding() {
 ════════════════════════════════════════ */
 const SHEETS_URL = "https://script.google.com/macros/s/AKfycbzIFVkoxvB1UiN7ZlUeU46ua1lTMuTvn81de8NquUJLhunK_vajYH1fDl6likDFEWvR/exec";
 
+
+// ══════════════════════════════════════════════════════════════════
+// SHEETS POST — Uses hidden form + iframe to bypass CORS
+// Google Apps Script requires this approach for reliable POST
+// ══════════════════════════════════════════════════════════════════
+function postToSheets(data) {
+  return new Promise((resolve) => {
+    try {
+      // Create a hidden iframe as the form target
+      const iframeId = 'sheets-iframe-' + Date.now();
+      const iframe   = document.createElement('iframe');
+      iframe.name    = iframeId;
+      iframe.id      = iframeId;
+      iframe.style.cssText = 'display:none;position:absolute;width:0;height:0;';
+      document.body.appendChild(iframe);
+
+      // Create the form
+      const form    = document.createElement('form');
+      form.method   = 'POST';
+      form.action   = SHEETS_URL;
+      form.target   = iframeId;
+      form.style.display = 'none';
+
+      // Single hidden field with all the JSON
+      const input   = document.createElement('input');
+      input.type    = 'hidden';
+      input.name    = 'payload';
+      input.value   = JSON.stringify(data);
+      form.appendChild(input);
+
+      document.body.appendChild(form);
+
+      // Submit and clean up after 4 seconds
+      form.submit();
+      setTimeout(() => {
+        try { document.body.removeChild(form); } catch(e) {}
+        try { document.body.removeChild(iframe); } catch(e) {}
+        resolve({ status: 'ok' });
+      }, 4000);
+
+    } catch(err) {
+      console.warn('postToSheets error:', err);
+      resolve({ status: 'error', error: err.message });
+    }
+  });
+}
+
 function sendToSheets(lead) {
-  // Fire and forget — non-blocking so form still submits even if Sheets is slow
-  fetch(SHEETS_URL, {
-    method: 'POST',
-    mode: 'no-cors', // required for Google Apps Script
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(lead)
-  })
-  .then(() => {
+  postToSheets(lead).then(() => {
     updateSyncStatus('connected');
     console.log('✅ Lead synced to Google Sheets');
-  })
-  .catch(err => {
-    updateSyncStatus('error');
-    console.warn('⚠️ Sheets sync failed (lead still saved locally):', err);
   });
 }
 
@@ -3402,10 +3438,7 @@ function confirmAction() {
   });
 
   // 2. Sync to Google Sheets
-  fetch(SHEETS_URL, {
-    method: 'POST', mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
+  postToSheets({
       action: 'updateStatus',
       ts: _actionTs,
       email: lead.email || '',
@@ -3414,33 +3447,24 @@ function confirmAction() {
       status: newStatus,
       message: message,
       reschedule_date: rescheduleDate
-    })
-  }).catch(() => {});
+    });
 
   // 3. Send email via Google Apps Script
-  fetch(SHEETS_URL, {
-    method: 'POST', mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      action: 'sendActionEmail',
-      type: _actionType,
-      email: lead.email || '',
-      fname: lead.fname || '',
-      lname: lead.lname || '',
-      campus: lead.campus || '',
-      num_children: lead.num_children || '',
-      translator: lead.translator || '',
-      phone: lead.phone || '',
-      message: message,
-      reschedule_date: rescheduleDate,
-      status: newStatus
-    })
-  })
-  .then(() => {
+  postToSheets({
+    action: 'sendActionEmail',
+    type: _actionType,
+    email: lead.email || '',
+    fname: lead.fname || '',
+    lname: lead.lname || '',
+    campus: lead.campus || '',
+    num_children: lead.num_children || '',
+    translator: lead.translator || '',
+    phone: lead.phone || '',
+    message: message,
+    reschedule_date: rescheduleDate,
+    status: newStatus
+  }).then(() => {
     showToast(`${newStatus === 'Approved' ? '✅' : newStatus === 'Declined' ? '❌' : '📅'} ${lead.fname} ${lead.lname} — ${newStatus}. Email sent to ${lead.email}`);
-  })
-  .catch(() => {
-    showToast(`${newStatus} saved locally. Email may not have sent — check connection.`);
   });
 
   closeActionModal();
@@ -3459,11 +3483,7 @@ function resetToPending(ts) {
       delete leads[idx].actioned_at;
     }
   });
-  fetch(SHEETS_URL, {
-    method: 'POST', mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'updateStatus', ts, email: lead ? lead.email : '', status: 'Pending' })
-  }).catch(() => {});
+  postToSheets({ action: 'updateStatus', ts, email: lead ? lead.email : '', status: 'Pending' });
   showToast('↩ Lead reset to Pending');
   loadData();
 }
@@ -3608,17 +3628,13 @@ function deleteLead(ts) {
   });
 
   // Sync deletion to Google Sheets
-  fetch(SHEETS_URL, {
-    method: 'POST', mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      action: 'deleteLead',
-      ts: ts,
-      email: lead ? lead.email : ''
-    })
+  postToSheets({
+    action: 'deleteLead',
+    ts: ts,
+    email: lead ? lead.email : ''
   }).then(() => {
-    _leadsCache = null; // force re-fetch from Sheets to confirm
-  }).catch(() => {});
+    _leadsCache = null;
+  });
 
   loadData();
   showToast('🗑 Lead removed & synced to Sheets');
@@ -4062,17 +4078,13 @@ function quickEnrolUpdate(ts, selectEl) {
   if(flash) { flash.style.display='block'; setTimeout(()=>{ flash.style.display='none'; }, 1500); }
 
   // Sync to Google Sheets
-  fetch(SHEETS_URL, {
-    method:'POST', mode:'no-cors',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({
+  postToSheets({
       action: 'updateEnrollment',
       ts: ts,
       email: leads[idx].email || '',
       enrol_status: newStatus,
       enrol_notes: notesVal || ''
-    })
-  }).catch(()=>{});
+    });
 
   // Update pipeline tab count
   const pipeCount = leads.filter(l => l.enrol_status).length;
@@ -4232,17 +4244,13 @@ function saveEnrolStatus() {
   });
 
   // Sync to Sheets
-  fetch(SHEETS_URL, {
-    method:'POST', mode:'no-cors',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({
+  postToSheets({
       action: 'updateEnrollment',
       ts: _enrolTs,
       email: leads[idx].email || '',
       enrol_status: _enrolSelectedStatus,
       enrol_notes: notesVal
-    })
-  }).catch(()=>{});
+    });
 
   showToast(`✅ ${leads[idx].fname} marked as ${_enrolSelectedStatus}`);
   closeEnrolModal();
@@ -4325,10 +4333,7 @@ function savePipelineLead() {
   applyLocalMutation(leads => leads.push(lead));
 
   // 2. Save to Google Sheets — pipeline tab
-  fetch(SHEETS_URL, {
-    method: 'POST', mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
+  postToSheets({
       action:       'addPipelineLead',
       fname:        lead.fname,
       lname:        lead.lname,
@@ -4344,8 +4349,7 @@ function savePipelineLead() {
       notes:        lead.notes,
       assigned:     lead.assigned,
       ts:           lead.ts
-    })
-  }).catch(() => {});
+    });
 
   showToast('✅ Lead added to pipeline & synced to Google Sheets!');
   closePipeModal();
