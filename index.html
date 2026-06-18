@@ -2801,50 +2801,155 @@ document.addEventListener('change', function(e) {
 // localStorage = write-through cache only, never the primary source
 // ══════════════════════════════════════════════════════════════════
 
-let _leadsCache = null;
-let _lastFetch  = 0;
-const CACHE_TTL = 10000; // 10 seconds — near real-time for small teams
+// ══════════════════════════════════════════════════════════════════
+// DATA LAYER v3 — Pending Mutations Queue
+//
+// Problem solved: auto-refresh was overwriting enrollment status
+// changes because Sheets hadn't confirmed them yet.
+//
+// Solution: every local change is stored in _pendingMutations keyed
+// by lead timestamp. When fresh Sheets data arrives, we MERGE pending
+// changes on top — so nothing ever gets lost on refresh.
+// ══════════════════════════════════════════════════════════════════
 
-// Always return best available data
-function getLeads() {
-  if (_leadsCache !== null && (Date.now() - _lastFetch) < CACHE_TTL) {
-    return _leadsCache; // fresh cache
-  }
-  // Stale or empty — return local backup while async fetch happens
-  try { return JSON.parse(localStorage.getItem('pbis_leads') || '[]'); } catch(e) { return []; }
+let _leadsCache       = null;
+let _lastFetch        = 0;
+let _pipelineCache    = null; // separate cache for pipeline-only leads
+const CACHE_TTL       = 15000; // 15 seconds — balanced between real-time and stability
+
+// Pending mutations: { [ts]: { enrol_status, enrol_notes, status, ... } }
+// Any change made locally lives here until Sheets confirms it
+let _pendingMutations = {};
+
+// Load pending mutations from localStorage so they survive page refresh
+try {
+  const saved = localStorage.getItem('pbis_pending_mutations');
+  if(saved) _pendingMutations = JSON.parse(saved);
+} catch(e) { _pendingMutations = {}; }
+
+function savePendingMutations() {
+  try { localStorage.setItem('pbis_pending_mutations', JSON.stringify(_pendingMutations)); } catch(e) {}
 }
 
-// PRIMARY: fetch all leads from Google Sheets
+// Record a local change that is pending Sheets confirmation
+function recordPending(ts, changes) {
+  if(!ts) return;
+  _pendingMutations[ts] = Object.assign(_pendingMutations[ts] || {}, changes);
+  savePendingMutations();
+}
+
+// Clear a pending mutation once Sheets has confirmed it
+function clearPending(ts) {
+  if(_pendingMutations[ts]) {
+    delete _pendingMutations[ts];
+    savePendingMutations();
+  }
+}
+
+// Merge pending mutations on top of Sheets data
+// This ensures local changes are never lost on auto-refresh
+function mergePending(leads) {
+  if(Object.keys(_pendingMutations).length === 0) return leads;
+  return leads.map(lead => {
+    const pending = _pendingMutations[lead.ts];
+    if(!pending) return lead;
+    return Object.assign({}, lead, pending);
+  });
+}
+
+// Get leads — always returns merged (Sheets + pending) data
+function getLeads() {
+  const cache = _leadsCache;
+  if(cache !== null && (Date.now() - _lastFetch) < CACHE_TTL) {
+    return mergePending(cache);
+  }
+  // Stale — return merged localStorage backup while fetch is in progress
+  try {
+    const local = JSON.parse(localStorage.getItem('pbis_leads') || '[]');
+    return mergePending(local);
+  } catch(e) { return []; }
+}
+
+// PRIMARY: fetch tour request leads from Google Sheets
+// Also fetches pipeline leads and merges them
 async function fetchLeadsFromSheets() {
   try {
     updateSyncStatus('syncing');
-    // Cache-bust with timestamp so we always get fresh data
-    const res = await fetch(SHEETS_URL + '?action=getLeads&_=' + Date.now(), { method: 'GET' });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const json = await res.json();
-    if (json.status === 'ok' && Array.isArray(json.leads)) {
-      _leadsCache = json.leads;
-      _lastFetch  = Date.now();
-      // Write-through to localStorage as offline fallback
-      try { localStorage.setItem('pbis_leads', JSON.stringify(json.leads)); } catch(e) {}
-      updateSyncStatus('connected');
-      return json.leads;
+    const [res1, res2] = await Promise.all([
+      fetch(SHEETS_URL + '?action=getLeads&_=' + Date.now(), { method: 'GET' }),
+      fetch(SHEETS_URL + '?action=getPipelineLeads&_=' + Date.now(), { method: 'GET' })
+    ]);
+
+    let tourLeads     = [];
+    let pipelineLeads = [];
+
+    if(res1.ok) {
+      const j1 = await res1.json();
+      if(j1.status === 'ok' && Array.isArray(j1.leads)) tourLeads = j1.leads;
     }
-    throw new Error('Bad response from Sheets');
+    if(res2.ok) {
+      const j2 = await res2.json();
+      if(j2.status === 'ok' && Array.isArray(j2.leads)) pipelineLeads = j2.leads;
+    }
+
+    // Merge: tour leads + pipeline-only leads (not already in tour leads)
+    const tourTsSet   = new Set(tourLeads.map(l => l.ts));
+    const uniquePipe  = pipelineLeads.filter(l => !tourTsSet.has(l.ts));
+    const allLeads    = [...tourLeads, ...uniquePipe];
+
+    // Clear pending mutations that Sheets has now confirmed
+    allLeads.forEach(lead => {
+      const pending = _pendingMutations[lead.ts];
+      if(pending) {
+        const confirmed = Object.keys(pending).every(key => {
+          if(key === 'enrol_status') return lead.enrol_status === pending.enrol_status;
+          if(key === 'status')       return lead.status === pending.status;
+          return true; // other fields assumed confirmed
+        });
+        if(confirmed) clearPending(lead.ts);
+      }
+    });
+
+    // Apply any remaining pending mutations on top of fresh Sheets data
+    const merged = mergePending(allLeads);
+
+    _leadsCache  = allLeads; // store raw (unmutated) for next merge
+    _lastFetch   = Date.now();
+
+    try { localStorage.setItem('pbis_leads', JSON.stringify(merged)); } catch(e) {}
+    updateSyncStatus('connected');
+    return merged;
+
   } catch(err) {
     console.warn('Sheets fetch failed — using local cache:', err);
     updateSyncStatus('error');
-    try { return JSON.parse(localStorage.getItem('pbis_leads') || '[]'); } catch(e) { return []; }
+    try {
+      const local = JSON.parse(localStorage.getItem('pbis_leads') || '[]');
+      return mergePending(local);
+    } catch(e) { return []; }
   }
 }
 
-// Apply a local mutation immediately (optimistic update)
-// then invalidate cache so next fetch gets fresh Sheets data
-function applyLocalMutation(mutateFn) {
+// Apply a local mutation immediately AND record it as pending
+// so it survives the next auto-refresh from Sheets
+function applyLocalMutation(mutateFn, pendingKey, pendingChanges) {
+  // Get the current best data (merged)
   const leads = getLeads();
   mutateFn(leads);
-  _leadsCache = leads;
-  _lastFetch  = Date.now() - (CACHE_TTL - 3000); // expire in 3s so Sheets confirms
+
+  // Update the raw cache too so next getLeads() returns the mutation
+  if(_leadsCache) {
+    mutateFn(_leadsCache);
+  } else {
+    _leadsCache = leads;
+  }
+  _lastFetch = Date.now();
+
+  // Record as pending so refresh doesn't wipe it
+  if(pendingKey && pendingChanges) {
+    recordPending(pendingKey, pendingChanges);
+  }
+
   try { localStorage.setItem('pbis_leads', JSON.stringify(leads)); } catch(e) {}
 }
 
@@ -2852,7 +2957,6 @@ function getSessions() {
   try { return JSON.parse(localStorage.getItem('pbis_analytics') || '[]'); } catch(e) { return []; }
 }
 
-// Save new lead locally (optimistic) — Sheets write handled by sendToSheets
 function saveLeadLocally(lead) {
   applyLocalMutation(leads => leads.push(lead));
 }
@@ -3279,14 +3383,21 @@ function confirmAction() {
     rescheduleDate = document.getElementById('action-reschedule-dt').value;
   }
 
-  // Optimistic local update
+  // Record as pending so auto-refresh doesn't wipe this change
+  recordPending(_actionTs, {
+    status:         newStatus,
+    action_message: message,
+    reschedule_date: rescheduleDate,
+    actioned_at:    new Date().toISOString()
+  });
+
   applyLocalMutation(ls => {
     const i = ls.findIndex(x => x.ts === _actionTs);
     if(i !== -1) {
-      ls[i].status = newStatus;
+      ls[i].status         = newStatus;
       ls[i].action_message = message;
       ls[i].reschedule_date = rescheduleDate;
-      ls[i].actioned_at = new Date().toISOString();
+      ls[i].actioned_at    = new Date().toISOString();
     }
   });
 
@@ -3339,6 +3450,7 @@ function confirmAction() {
 function resetToPending(ts) {
   if(!confirm('Reset this lead back to Pending?')) return;
   const lead = getLeads().find(l => l.ts === ts);
+  recordPending(ts, { status: 'Pending', action_message: '', actioned_at: '' });
   applyLocalMutation(leads => {
     const idx = leads.findIndex(l => l.ts === ts);
     if(idx !== -1) {
@@ -3515,9 +3627,8 @@ function deleteLead(ts) {
 // Auto-load on page open
 loadData();
 
-// Auto-refresh from Google Sheets every 30 seconds
-// Auto-refresh every 10 seconds — all admins see same data within 10s
-setInterval(() => { _leadsCache = null; loadData(); }, 10000);
+// Auto-refresh every 20 seconds — pending mutations protected from overwrites
+setInterval(async () => { await loadData(); }, 20000);
 
 
 /* ════════════════════════════════════════
@@ -3926,6 +4037,9 @@ function quickEnrolUpdate(ts, selectEl) {
   const idx = leads.findIndex(l => l.ts === ts);
   if(idx === -1) return;
 
+  // Record as pending so auto-refresh doesn't wipe this change
+  recordPending(ts, { enrol_status: newStatus, enrol_updated: new Date().toISOString() });
+
   applyLocalMutation(ls => {
     const i = ls.findIndex(x => x.ts === ts);
     if(i !== -1) {
@@ -4100,6 +4214,14 @@ function saveEnrolStatus() {
   if(idx === -1) return;
 
   const notesVal = document.getElementById('enrol-notes').value.trim();
+
+  // Record as pending so auto-refresh doesn't wipe this change
+  recordPending(_enrolTs, {
+    enrol_status:  _enrolSelectedStatus,
+    enrol_notes:   notesVal,
+    enrol_updated: new Date().toISOString()
+  });
+
   applyLocalMutation(ls => {
     const i = ls.findIndex(x => x.ts === _enrolTs);
     if(i !== -1) {
@@ -4193,7 +4315,13 @@ function savePipelineLead() {
     ts:           new Date().toISOString()
   };
 
-  // 1. Optimistic local update
+  // 1. Optimistic local update — record pending so it survives refresh
+  recordPending(lead.ts, {
+    enrol_status:  lead.enrol_status,
+    enrol_notes:   lead.notes,
+    pipeline_lead: true,
+    status:        'Approved'
+  });
   applyLocalMutation(leads => leads.push(lead));
 
   // 2. Save to Google Sheets — pipeline tab
