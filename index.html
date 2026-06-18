@@ -1025,6 +1025,13 @@ body{font-family:'DM Sans',sans-serif;background:#f4f1ea;color:var(--text);min-h
 .login-lockout-msg.show { display: block; }
 /* Hide mobile sticky CTA when on dashboard */
 body.dashboard-active .sticky-mobile-cta { display: none !important; }
+
+/* ── Hide landing page elements when admin dashboard is active ── */
+body.dashboard-active .contact-section { display: none !important; }
+body.dashboard-active .final-section   { display: none !important; }
+body.dashboard-active footer           { display: none !important; }
+body.dashboard-active .anniversary-bar { display: none !important; }
+body.dashboard-active nav              { display: none !important; }
 </style>
 
 <script>
