@@ -1015,6 +1015,91 @@ body{font-family:'DM Sans',sans-serif;background:#f4f1ea;color:var(--text);min-h
 .enrol-inline-select.es-notEnrolling{ background:rgba(224,82,82,0.1);color:#b91c1c;border-color:rgba(224,82,82,0.3); }
 .enrol-saved-flash { font-size:10px;color:#2d9e5f;font-weight:600;display:none;animation:fadeIn 0.3s ease; }
 
+
+/* ── PIPELINE ADD LEAD MODAL ── */
+.pipe-modal-backdrop {
+  position:fixed;inset:0;z-index:10002;
+  background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);
+  display:none;align-items:flex-start;justify-content:center;
+  padding:40px 20px;overflow-y:auto;
+}
+.pipe-modal-backdrop.open { display:flex;animation:fadeIn 0.2s ease; }
+.pipe-modal {
+  background:var(--white);border-radius:16px;
+  width:100%;max-width:580px;
+  box-shadow:0 32px 80px rgba(0,0,0,0.3);
+  overflow:hidden;animation:slideUp 0.25s ease;
+  margin:auto;
+}
+.pipe-modal-header {
+  background:linear-gradient(135deg,#0a2818,#1a4a2a);
+  padding:22px 28px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.pipe-modal-header h3 {
+  font-family:'DM Serif Display',serif;font-size:20px;
+  color:var(--white);font-weight:400;margin:0;
+}
+.pipe-modal-header p { font-size:12px;color:rgba(255,255,255,0.5);margin:4px 0 0; }
+.pipe-modal-header button {
+  background:rgba(255,255,255,0.1);border:none;color:white;
+  width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:15px;
+  transition:background 0.2s;flex-shrink:0;
+}
+.pipe-modal-header button:hover { background:rgba(255,255,255,0.2); }
+.pipe-gold-bar { height:3px;background:linear-gradient(90deg,#c9a84c,#e8c96e,#c9a84c); }
+.pipe-modal-body { padding:24px 28px;display:flex;flex-direction:column;gap:14px; }
+.pipe-section-label {
+  font-size:10px;font-weight:700;letter-spacing:0.12em;
+  text-transform:uppercase;color:var(--gold);
+  padding-bottom:8px;border-bottom:1px solid rgba(201,168,76,0.2);
+  margin-top:4px;
+}
+.pipe-row { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
+.pipe-group { display:flex;flex-direction:column;gap:5px; }
+.pipe-group label {
+  font-size:11px;font-weight:700;letter-spacing:0.06em;
+  text-transform:uppercase;color:var(--navy);
+}
+.pipe-group input,.pipe-group select,.pipe-group textarea {
+  padding:10px 13px;border:1.5px solid #e0dbd0;border-radius:6px;
+  font-family:'DM Sans',sans-serif;font-size:13px;outline:none;
+  background:var(--cream);transition:border-color 0.2s,background 0.2s;
+  width:100%;
+}
+.pipe-group input:focus,.pipe-group select:focus,.pipe-group textarea:focus {
+  border-color:var(--gold);background:white;
+}
+.pipe-group textarea { resize:vertical;min-height:72px; }
+.pipe-modal-footer {
+  padding:16px 28px 24px;
+  display:flex;gap:10px;justify-content:flex-end;
+  border-top:1px solid #f0ede6;
+}
+.btn-pipe-cancel {
+  background:var(--gray-light);border:none;color:var(--gray-mid);
+  padding:10px 20px;border-radius:6px;cursor:pointer;
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;
+}
+.btn-pipe-save {
+  background:linear-gradient(135deg,var(--gold),var(--gold-light));
+  color:var(--navy);border:none;padding:10px 24px;border-radius:6px;
+  cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;
+  box-shadow:var(--shadow-btn);transition:all 0.2s;
+}
+.btn-pipe-save:hover { transform:translateY(-1px);box-shadow:0 8px 28px rgba(201,168,76,0.4); }
+.btn-add-pipeline-lead {
+  display:inline-flex;align-items:center;gap:8px;
+  background:linear-gradient(135deg,var(--gold),var(--gold-light));
+  color:var(--navy);border:none;border-radius:6px;
+  padding:10px 20px;font-size:13px;font-weight:700;
+  cursor:pointer;font-family:'DM Sans',sans-serif;
+  letter-spacing:0.04em;box-shadow:var(--shadow-btn);
+  transition:all 0.2s;
+}
+.btn-add-pipeline-lead:hover { transform:translateY(-1px);box-shadow:0 8px 28px rgba(201,168,76,0.4); }
+@media(max-width:600px) { .pipe-row { grid-template-columns:1fr; } }
+
 /* ── ADMIN TOGGLE BUTTON (bottom-right, subtle) ── */
 /* ── ADMIN BUTTON ── */
 .admin-toggle {
@@ -1938,6 +2023,133 @@ body.dashboard-active nav              { display: none !important; }
     <div class="enrol-modal-footer">
       <button class="btn-enrol-cancel" onclick="closeEnrolModal()">Cancel</button>
       <button class="btn-enrol-save" onclick="saveEnrolStatus()">💾 Save Status</button>
+    </div>
+  </div>
+</div>
+
+<!-- PIPELINE ADD LEAD MODAL -->
+<div class="pipe-modal-backdrop" id="pipe-modal-backdrop" onclick="if(event.target===this)closePipeModal()">
+  <div class="pipe-modal">
+    <div class="pipe-modal-header">
+      <div>
+        <h3>📈 Add Pipeline Lead</h3>
+        <p>Manually add a lead to the enrollment pipeline</p>
+      </div>
+      <button onclick="closePipeModal()">✕</button>
+    </div>
+    <div class="pipe-gold-bar"></div>
+    <div class="pipe-modal-body">
+
+      <div class="pipe-section-label">Parent / Guardian Information</div>
+      <div class="pipe-row">
+        <div class="pipe-group">
+          <label>First Name *</label>
+          <input type="text" id="pl-fname" placeholder="First name">
+        </div>
+        <div class="pipe-group">
+          <label>Last Name</label>
+          <input type="text" id="pl-lname" placeholder="Last name">
+        </div>
+      </div>
+      <div class="pipe-row">
+        <div class="pipe-group">
+          <label>Phone / WhatsApp *</label>
+          <input type="tel" id="pl-phone" placeholder="+856 or +66…">
+        </div>
+        <div class="pipe-group">
+          <label>Email</label>
+          <input type="email" id="pl-email" placeholder="parent@email.com">
+        </div>
+      </div>
+      <div class="pipe-row">
+        <div class="pipe-group">
+          <label>Nationality</label>
+          <input type="text" id="pl-nationality" placeholder="e.g. Lao, Thai, British…">
+        </div>
+        <div class="pipe-group">
+          <label>Relationship to Child</label>
+          <select id="pl-relationship">
+            <option value="">Select…</option>
+            <option>Mother</option>
+            <option>Father</option>
+            <option>Guardian</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="pipe-section-label">Enrollment Details</div>
+      <div class="pipe-row">
+        <div class="pipe-group">
+          <label>Interested Campus *</label>
+          <select id="pl-campus">
+            <option value="">Select campus…</option>
+            <option value="EY">Early Years Campus</option>
+            <option value="Primary">Primary Campus</option>
+            <option value="Secondary">Secondary Campus</option>
+          </select>
+        </div>
+        <div class="pipe-group">
+          <label>Number of Children</label>
+          <select id="pl-children">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+        </div>
+      </div>
+      <div class="pipe-row">
+        <div class="pipe-group">
+          <label>Enrollment Stage *</label>
+          <select id="pl-enrol-status">
+            <option value="Interested">👀 Interested</option>
+            <option value="Toured">🏫 Toured</option>
+            <option value="Considering">🤔 Considering</option>
+            <option value="Enrolled">🎓 Enrolled</option>
+            <option value="Undecided">⏸ Has Not Decided</option>
+            <option value="Not Enrolling">❌ Not Enrolling</option>
+          </select>
+        </div>
+        <div class="pipe-group">
+          <label>Source / How They Found Us</label>
+          <select id="pl-source">
+            <option value="Walk-in (Open Day)">Walk-in — Open Day</option>
+            <option value="Referral">Referral / Word of Mouth</option>
+            <option value="Facebook">Facebook</option>
+            <option value="Instagram">Instagram</option>
+            <option value="PBIS Website">PBIS Website</option>
+            <option value="Phone Enquiry">Phone Enquiry</option>
+            <option value="Email Enquiry">Email Enquiry</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="pipe-row">
+        <div class="pipe-group">
+          <label>Lao Translator Needed?</label>
+          <select id="pl-translator">
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+          </select>
+        </div>
+        <div class="pipe-group">
+          <label>Assigned To</label>
+          <input type="text" id="pl-assigned" placeholder="e.g. Admissions Team">
+        </div>
+      </div>
+
+      <div class="pipe-section-label">Notes</div>
+      <div class="pipe-group">
+        <label>Notes / Follow-up Actions</label>
+        <textarea id="pl-notes" placeholder="e.g. Met at Open Day, interested in Year 3, follow up next week…"></textarea>
+      </div>
+
+    </div>
+    <div class="pipe-modal-footer">
+      <button class="btn-pipe-cancel" onclick="closePipeModal()">Cancel</button>
+      <button class="btn-pipe-save" onclick="savePipelineLead()">💾 Add to Pipeline & Sheets</button>
     </div>
   </div>
 </div>
@@ -3817,9 +4029,14 @@ function renderPipeline() {
 
   container.innerHTML = `
     <div class="panel" style="margin-bottom:20px;">
-      <div class="panel-title">
-        Enrollment Pipeline
-        <span>${totalTracked} of ${leads.length} tracked · ${untracked.length} not yet assigned</span>
+      <div class="panel-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <span style="font-family:'DM Serif Display',serif;font-size:16px;color:var(--navy);">
+          Enrollment Pipeline
+          <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:400;color:var(--gold);margin-left:8px;">${totalTracked} of ${leads.length} tracked · ${untracked.length} pending assignment</span>
+        </span>
+        <button class="btn-add-pipeline-lead" onclick="openPipeModal()">
+          ➕ Add Manual Lead
+        </button>
       </div>
       ${untracked.length > 0 ? `
         <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:8px;padding:10px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px;">
@@ -3922,6 +4139,105 @@ function saveEnrolStatus() {
   const pipeEl = document.getElementById('pipe-tab-count');
   if(pipeEl) pipeEl.textContent = pipeCount;
 }
+
+
+// ══════════════════════════════════════════════════════════════════
+// PIPELINE LEAD MODAL — Add manual leads to pipeline + Sheets
+// ══════════════════════════════════════════════════════════════════
+function openPipeModal() {
+  // Clear all fields
+  ['pl-fname','pl-lname','pl-phone','pl-email','pl-nationality','pl-notes','pl-assigned'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.value = '';
+  });
+  ['pl-relationship','pl-campus','pl-children','pl-enrol-status','pl-source','pl-translator'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.selectedIndex = 0;
+  });
+  document.getElementById('pipe-modal-backdrop').classList.add('open');
+  setTimeout(() => document.getElementById('pl-fname')?.focus(), 100);
+}
+
+function closePipeModal() {
+  document.getElementById('pipe-modal-backdrop').classList.remove('open');
+}
+
+function savePipelineLead() {
+  const fname  = document.getElementById('pl-fname')?.value.trim();
+  const phone  = document.getElementById('pl-phone')?.value.trim();
+  const campus = document.getElementById('pl-campus')?.value;
+  const enrol  = document.getElementById('pl-enrol-status')?.value;
+
+  if(!fname)  { showToast('⚠️ Please enter a first name');  document.getElementById('pl-fname')?.focus();  return; }
+  if(!phone)  { showToast('⚠️ Please enter a phone number'); document.getElementById('pl-phone')?.focus();  return; }
+  if(!campus) { showToast('⚠️ Please select a campus');      document.getElementById('pl-campus')?.focus(); return; }
+
+  const lead = {
+    fname,
+    lname:        document.getElementById('pl-lname')?.value.trim()        || '',
+    phone,
+    email:        document.getElementById('pl-email')?.value.trim()        || '',
+    nationality:  document.getElementById('pl-nationality')?.value.trim()  || '',
+    relationship: document.getElementById('pl-relationship')?.value        || '',
+    campus,
+    num_children: document.getElementById('pl-children')?.value            || '1',
+    translator:   document.getElementById('pl-translator')?.value          || 'No',
+    source:       document.getElementById('pl-source')?.value              || 'Walk-in (Open Day)',
+    assigned:     document.getElementById('pl-assigned')?.value.trim()     || '',
+    notes:        document.getElementById('pl-notes')?.value.trim()        || '',
+    enrol_status: enrol || 'Interested',
+    enrol_notes:  document.getElementById('pl-notes')?.value.trim()        || '',
+    status:       'Approved',        // manual pipeline leads are pre-approved
+    manual_entry: true,
+    pipeline_lead: true,             // flag so Sheets knows which tab to write to
+    ts:           new Date().toISOString()
+  };
+
+  // 1. Optimistic local update
+  applyLocalMutation(leads => leads.push(lead));
+
+  // 2. Save to Google Sheets — pipeline tab
+  fetch(SHEETS_URL, {
+    method: 'POST', mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      action:       'addPipelineLead',
+      fname:        lead.fname,
+      lname:        lead.lname,
+      nationality:  lead.nationality,
+      phone:        lead.phone,
+      email:        lead.email,
+      relationship: lead.relationship,
+      campus:       lead.campus,
+      num_children: lead.num_children,
+      translator:   lead.translator,
+      source:       lead.source,
+      enrol_status: lead.enrol_status,
+      notes:        lead.notes,
+      assigned:     lead.assigned,
+      ts:           lead.ts
+    })
+  }).catch(() => {});
+
+  showToast('✅ Lead added to pipeline & synced to Google Sheets!');
+  closePipeModal();
+
+  // Refresh pipeline tab
+  renderPipeline();
+
+  // Update counts
+  const pipeCount = getLeads().filter(l => l.enrol_status).length;
+  const pipeEl = document.getElementById('pipe-tab-count');
+  if(pipeEl) pipeEl.textContent = pipeCount;
+}
+
+// Close on Escape
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape') {
+    closePipeModal();
+    closeEnrolModal();
+  }
+});
 
 </script>
 </body>
