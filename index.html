@@ -2238,7 +2238,7 @@ function updateSyncStatus(state) {
   const el = document.getElementById('sync-status');
   if(!el) return;
   if(state === 'connected') {
-    el.innerHTML = '<span style="color:#2d9e5f;">● Sheets Connected</span>';
+    const t=new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit",second:"2-digit"}); el.innerHTML='<span style="color:#2d9e5f;">● Live · '+t+'</span>';
   } else if(state === 'syncing') {
     el.innerHTML = '<span style="color:#e8c96e;">● Syncing...</span>';
   } else {
@@ -2247,6 +2247,8 @@ function updateSyncStatus(state) {
 }
 
 function testSheetsConnection() {
+  _leadsCache = null;
+  loadData();
   updateSyncStatus('syncing');
   const testLead = {
     fname: 'CONNECTION', lname: 'TEST',
@@ -2581,61 +2583,66 @@ document.addEventListener('change', function(e) {
 // localStorage = fast cache only (fallback when offline)
 // ══════════════════════════════════════════════
 
-// In-memory cache so re-renders don't re-fetch
-let _leadsCache = null;
-let _lastFetch = 0;
-const CACHE_TTL = 30000; // 30 seconds
+// ══════════════════════════════════════════════════════════════════
+// DATA LAYER — Google Sheets is ALWAYS the source of truth
+// All 5 admins on 5 devices see identical data within 10 seconds
+// localStorage = write-through cache only, never the primary source
+// ══════════════════════════════════════════════════════════════════
 
+let _leadsCache = null;
+let _lastFetch  = 0;
+const CACHE_TTL = 10000; // 10 seconds — near real-time for small teams
+
+// Always return best available data
 function getLeads() {
-  // Return cache if fresh
   if (_leadsCache !== null && (Date.now() - _lastFetch) < CACHE_TTL) {
-    return _leadsCache;
+    return _leadsCache; // fresh cache
   }
-  // Fallback to localStorage while async fetch is in progress
-  try {
-    return JSON.parse(localStorage.getItem('pbis_leads') || '[]');
-  } catch(e) { return []; }
+  // Stale or empty — return local backup while async fetch happens
+  try { return JSON.parse(localStorage.getItem('pbis_leads') || '[]'); } catch(e) { return []; }
 }
 
-// ── Primary fetch from Google Sheets via doGet
+// PRIMARY: fetch all leads from Google Sheets
 async function fetchLeadsFromSheets() {
   try {
     updateSyncStatus('syncing');
-    const res = await fetch(SHEETS_URL + '?action=getLeads', { method: 'GET' });
+    // Cache-bust with timestamp so we always get fresh data
+    const res = await fetch(SHEETS_URL + '?action=getLeads&_=' + Date.now(), { method: 'GET' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();
     if (json.status === 'ok' && Array.isArray(json.leads)) {
       _leadsCache = json.leads;
-      _lastFetch = Date.now();
-      // Keep localStorage in sync as offline backup
-      localStorage.setItem('pbis_leads', JSON.stringify(json.leads));
+      _lastFetch  = Date.now();
+      // Write-through to localStorage as offline fallback
+      try { localStorage.setItem('pbis_leads', JSON.stringify(json.leads)); } catch(e) {}
       updateSyncStatus('connected');
       return json.leads;
     }
-    throw new Error('Bad response');
+    throw new Error('Bad response from Sheets');
   } catch(err) {
-    console.warn('Sheets fetch failed, using localStorage cache:', err);
+    console.warn('Sheets fetch failed — using local cache:', err);
     updateSyncStatus('error');
-    try {
-      return JSON.parse(localStorage.getItem('pbis_leads') || '[]');
-    } catch(e) { return []; }
+    try { return JSON.parse(localStorage.getItem('pbis_leads') || '[]'); } catch(e) { return []; }
   }
 }
 
-function getSessions() {
-  try {
-    return JSON.parse(localStorage.getItem('pbis_analytics') || '[]');
-  } catch(e) { return []; }
+// Apply a local mutation immediately (optimistic update)
+// then invalidate cache so next fetch gets fresh Sheets data
+function applyLocalMutation(mutateFn) {
+  const leads = getLeads();
+  mutateFn(leads);
+  _leadsCache = leads;
+  _lastFetch  = Date.now() - (CACHE_TTL - 3000); // expire in 3s so Sheets confirms
+  try { localStorage.setItem('pbis_leads', JSON.stringify(leads)); } catch(e) {}
 }
 
-// ── Save lead locally + to Sheets (already handled by sendToSheets)
+function getSessions() {
+  try { return JSON.parse(localStorage.getItem('pbis_analytics') || '[]'); } catch(e) { return []; }
+}
+
+// Save new lead locally (optimistic) — Sheets write handled by sendToSheets
 function saveLeadLocally(lead) {
-  try {
-    const existing = JSON.parse(localStorage.getItem('pbis_leads') || '[]');
-    existing.push(lead);
-    localStorage.setItem('pbis_leads', JSON.stringify(existing));
-    // Invalidate cache so next load re-fetches
-    _leadsCache = null;
-  } catch(e) {}
+  applyLocalMutation(leads => leads.push(lead));
 }
 
 // ══════════════════════════════════════════════
@@ -3060,12 +3067,16 @@ function confirmAction() {
     rescheduleDate = document.getElementById('action-reschedule-dt').value;
   }
 
-  // 1. Update locally
-  leads[idx].status = newStatus;
-  leads[idx].action_message = message;
-  leads[idx].reschedule_date = rescheduleDate;
-  leads[idx].actioned_at = new Date().toISOString();
-  localStorage.setItem('pbis_leads', JSON.stringify(leads));
+  // Optimistic local update
+  applyLocalMutation(ls => {
+    const i = ls.findIndex(x => x.ts === _actionTs);
+    if(i !== -1) {
+      ls[i].status = newStatus;
+      ls[i].action_message = message;
+      ls[i].reschedule_date = rescheduleDate;
+      ls[i].actioned_at = new Date().toISOString();
+    }
+  });
 
   // 2. Sync to Google Sheets
   fetch(SHEETS_URL, {
@@ -3115,31 +3126,30 @@ function confirmAction() {
 
 function resetToPending(ts) {
   if(!confirm('Reset this lead back to Pending?')) return;
-  const leads = getLeads();
-  const idx = leads.findIndex(l => l.ts === ts);
-  if(idx !== -1) {
-    leads[idx].status = 'Pending';
-    delete leads[idx].action_message;
-    delete leads[idx].actioned_at;
-    localStorage.setItem('pbis_leads', JSON.stringify(leads));
-    fetch(SHEETS_URL, {
-      method: 'POST', mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'updateStatus', ts, email: leads[idx].email||'', status: 'Pending' })
-    }).catch(() => {});
-    showToast('↩ Lead reset to Pending');
-    loadData();
-  }
+  const lead = getLeads().find(l => l.ts === ts);
+  applyLocalMutation(leads => {
+    const idx = leads.findIndex(l => l.ts === ts);
+    if(idx !== -1) {
+      leads[idx].status = 'Pending';
+      delete leads[idx].action_message;
+      delete leads[idx].actioned_at;
+    }
+  });
+  fetch(SHEETS_URL, {
+    method: 'POST', mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'updateStatus', ts, email: lead ? lead.email : '', status: 'Pending' })
+  }).catch(() => {});
+  showToast('↩ Lead reset to Pending');
+  loadData();
 }
 
 // Legacy updateStatus kept for backwards compat
 function updateStatus(ts, status) {
-  const leads = getLeads();
-  const idx = leads.findIndex(l => l.ts === ts);
-  if(idx !== -1) {
-    leads[idx].status = status;
-    localStorage.setItem('pbis_leads', JSON.stringify(leads));
-  }
+  applyLocalMutation(leads => {
+    const idx = leads.findIndex(l => l.ts === ts);
+    if(idx !== -1) leads[idx].status = status;
+  });
 }
 
 // ══════════════════════════════════════════════
@@ -3237,8 +3247,7 @@ function saveManualLead() {
   };
 
   try {
-    saveLeadLocally(lead);
-    // Sync to Google Sheets (primary store)
+    applyLocalMutation(leads => leads.push(lead));
     sendToSheets(lead);
     showToast('✅ Lead saved & synced to Google Sheets!');
     closeModal();
@@ -3265,18 +3274,38 @@ document.addEventListener('keydown', e => {
 
 // Also update table to show delete button
 function deleteLead(ts) {
-  if(!confirm('Remove this lead?')) return;
-  const leads = getLeads().filter(l => l.ts !== ts);
-  localStorage.setItem('pbis_leads', JSON.stringify(leads));
+  if(!confirm('Remove this lead? This will also remove it from Google Sheets.')) return;
+  const lead = getLeads().find(l => l.ts === ts);
+
+  // Optimistic local update
+  applyLocalMutation(leads => {
+    const idx = leads.findIndex(l => l.ts === ts);
+    if(idx !== -1) leads.splice(idx, 1);
+  });
+
+  // Sync deletion to Google Sheets
+  fetch(SHEETS_URL, {
+    method: 'POST', mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      action: 'deleteLead',
+      ts: ts,
+      email: lead ? lead.email : ''
+    })
+  }).then(() => {
+    _leadsCache = null; // force re-fetch from Sheets to confirm
+  }).catch(() => {});
+
   loadData();
-  showToast('🗑 Lead removed');
+  showToast('🗑 Lead removed & synced to Sheets');
 }
 
 // Auto-load on page open
 loadData();
 
 // Auto-refresh from Google Sheets every 30 seconds
-setInterval(() => { _leadsCache = null; loadData(); }, 30000);
+// Auto-refresh every 10 seconds — all admins see same data within 10s
+setInterval(() => { _leadsCache = null; loadData(); }, 10000);
 
 
 /* ════════════════════════════════════════
@@ -3685,10 +3714,13 @@ function quickEnrolUpdate(ts, selectEl) {
   const idx = leads.findIndex(l => l.ts === ts);
   if(idx === -1) return;
 
-  leads[idx].enrol_status  = newStatus;
-  leads[idx].enrol_updated = new Date().toISOString();
-  localStorage.setItem('pbis_leads', JSON.stringify(leads));
-  _leadsCache = leads;
+  applyLocalMutation(ls => {
+    const i = ls.findIndex(x => x.ts === ts);
+    if(i !== -1) {
+      ls[i].enrol_status  = newStatus;
+      ls[i].enrol_updated = new Date().toISOString();
+    }
+  });
 
   // Update select colour class
   const clsMap = {
@@ -3712,7 +3744,7 @@ function quickEnrolUpdate(ts, selectEl) {
       ts: ts,
       email: leads[idx].email || '',
       enrol_status: newStatus,
-      enrol_notes: leads[idx].enrol_notes || ''
+      enrol_notes: notesVal || ''
     })
   }).catch(()=>{});
 
@@ -3850,13 +3882,15 @@ function saveEnrolStatus() {
   const idx = leads.findIndex(l => l.ts === _enrolTs);
   if(idx === -1) return;
 
-  leads[idx].enrol_status = _enrolSelectedStatus;
-  leads[idx].enrol_notes  = document.getElementById('enrol-notes').value.trim();
-  leads[idx].enrol_updated = new Date().toISOString();
-
-  // Save locally
-  localStorage.setItem('pbis_leads', JSON.stringify(leads));
-  _leadsCache = leads;
+  const notesVal = document.getElementById('enrol-notes').value.trim();
+  applyLocalMutation(ls => {
+    const i = ls.findIndex(x => x.ts === _enrolTs);
+    if(i !== -1) {
+      ls[i].enrol_status  = _enrolSelectedStatus;
+      ls[i].enrol_notes   = notesVal;
+      ls[i].enrol_updated = new Date().toISOString();
+    }
+  });
 
   // Sync to Sheets
   fetch(SHEETS_URL, {
@@ -3867,7 +3901,7 @@ function saveEnrolStatus() {
       ts: _enrolTs,
       email: leads[idx].email || '',
       enrol_status: _enrolSelectedStatus,
-      enrol_notes: leads[idx].enrol_notes
+      enrol_notes: notesVal
     })
   }).catch(()=>{});
 
