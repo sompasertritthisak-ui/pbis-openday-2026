@@ -1105,17 +1105,19 @@ body{font-family:'DM Sans',sans-serif;background:#f4f1ea;color:var(--text);min-h
 .admin-toggle {
   position: fixed;
   bottom: 24px; right: 24px;
-  z-index: 9999;
+  z-index: 99998;
   display: flex; align-items: center; gap: 10px;
   background: linear-gradient(135deg, #0a2818 0%, #1a4a2a 100%);
   border: 1px solid rgba(201,168,76,0.5);
   border-radius: 50px;
   padding: 10px 20px 10px 12px;
-  cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
+  cursor: pointer !important;
+  pointer-events: all !important;
+  font-family: sans-serif;
   box-shadow: 0 4px 24px rgba(0,0,0,0.35), 0 0 0 1px rgba(201,168,76,0.1);
   transition: all 0.25s;
   text-decoration: none;
+  user-select: none;
 }
 .admin-toggle:hover {
   transform: translateY(-2px);
@@ -1146,7 +1148,7 @@ body{font-family:'DM Sans',sans-serif;background:#f4f1ea;color:var(--text);min-h
 
 /* ── LOGIN MODAL ── */
 .login-modal-backdrop {
-  position: fixed; inset: 0; z-index: 99999;
+  position: fixed; inset: 0; z-index: 999999;
   background: rgba(0,0,0,0.7);
   backdrop-filter: blur(8px);
   display: none; align-items: center; justify-content: center;
@@ -2288,15 +2290,25 @@ function openLoginModal() {
   if(_sessionExpiry && Date.now() < _sessionExpiry) {
     enterDashboard(); return;
   }
-  document.getElementById('login-modal-backdrop').classList.add('open');
-  setTimeout(() => document.getElementById('login-pwd-input')?.focus(), 100);
+  var backdrop = document.getElementById('login-modal-backdrop');
+  if(backdrop) {
+    backdrop.classList.add('open');
+    backdrop.style.display = 'flex';
+  }
+  setTimeout(function() {
+    var inp = document.getElementById('login-pwd-input');
+    if(inp) inp.focus();
+  }, 100);
   updateAttemptsMsg();
 }
 
 function closeLoginModal() {
-  document.getElementById('login-modal-backdrop').classList.remove('open');
-  document.getElementById('login-pwd-input').value = '';
-  document.getElementById('login-error-msg').classList.remove('show');
+  var backdrop = document.getElementById('login-modal-backdrop');
+  if(backdrop) { backdrop.classList.remove('open'); backdrop.style.display = ''; }
+  var inp = document.getElementById('login-pwd-input');
+  if(inp) inp.value = '';
+  var err = document.getElementById('login-error-msg');
+  if(err) err.classList.remove('show');
 }
 
 function handleLoginBackdrop(e) {
@@ -2559,8 +2571,10 @@ function updateCountdown() {
   document.getElementById('cd-mins').textContent = String(m).padStart(2,'0');
   document.getElementById('cd-secs').textContent = String(s).padStart(2,'0');
 }
-updateCountdown();
-setInterval(updateCountdown, 1000);
+try {
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+} catch(cdErr) { console.warn('Countdown error:', cdErr); }
 
 
 // ── INPUT SANITIZER — strip HTML tags to prevent XSS
