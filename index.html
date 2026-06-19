@@ -1462,7 +1462,7 @@ body.dashboard-active nav              { display: none !important; }
           <div style="background:linear-gradient(135deg,var(--gold),var(--gold-light));padding:9px 16px;display:flex;align-items:center;justify-content:space-between;">
             <div style="display:flex;align-items:center;gap:8px;">
               <span style="font-size:14px;">🌱</span>
-              <span style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:var(--navy);">Early Years Campus</span>
+              <span style="font-family:sans-serif,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:var(--navy);">Early Years Campus</span>
             </div>
             <a href="https://maps.app.goo.gl/7fHwUnPDaDWB7M6h9" target="_blank" style="font-size:10px;font-weight:700;color:var(--navy);text-decoration:none;letter-spacing:0.07em;text-transform:uppercase;opacity:0.7;">Open ↗</a>
           </div>
@@ -1475,7 +1475,7 @@ body.dashboard-active nav              { display: none !important; }
           <div style="background:linear-gradient(135deg,var(--gold),var(--gold-light));padding:9px 16px;display:flex;align-items:center;justify-content:space-between;">
             <div style="display:flex;align-items:center;gap:8px;">
               <span style="font-size:14px;">📚</span>
-              <span style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:var(--navy);">Primary Campus</span>
+              <span style="font-family:sans-serif,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:var(--navy);">Primary Campus</span>
             </div>
             <a href="https://maps.app.goo.gl/QrFHMTkAREZ5YCrM8" target="_blank" style="font-size:10px;font-weight:700;color:var(--navy);text-decoration:none;letter-spacing:0.07em;text-transform:uppercase;opacity:0.7;">Open ↗</a>
           </div>
@@ -1488,7 +1488,7 @@ body.dashboard-active nav              { display: none !important; }
           <div style="background:linear-gradient(135deg,var(--gold),var(--gold-light));padding:9px 16px;display:flex;align-items:center;justify-content:space-between;">
             <div style="display:flex;align-items:center;gap:8px;">
               <span style="font-size:14px;">🏫</span>
-              <span style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:var(--navy);">Secondary Campus</span>
+              <span style="font-family:sans-serif,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:var(--navy);">Secondary Campus</span>
             </div>
             <a href="https://maps.app.goo.gl/Nb8q74A2nKB2F4Nh6" target="_blank" style="font-size:10px;font-weight:700;color:var(--navy);text-decoration:none;letter-spacing:0.07em;text-transform:uppercase;opacity:0.7;">Open ↗</a>
           </div>
@@ -1742,7 +1742,7 @@ body.dashboard-active nav              { display: none !important; }
     <div class="footer-brand">
       <div style="display:flex;align-items:center;gap:10px;">
         <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="PBIS" style="height:44px;width:auto;filter:drop-shadow(0 2px 6px rgba(201,168,76,0.25));">
-        <div style="font-family:'DM Serif Display',serif;color:var(--white);font-size:13px;line-height:1.2;">Panyathip British<br>International School</div>
+        <div style="font-family:serif,serif;color:var(--white);font-size:13px;line-height:1.2;">Panyathip British<br>International School</div>
       </div>
       <p>Celebrating 25 years of world-class British international education in Laos. Serving 40+ nationalities since 2001. Saphanthong Neua, Sisattanak, Vientiane, Lao PDR.</p>
     </div>
@@ -3249,7 +3249,7 @@ function renderTable(leads) {
          </div>`
       : `<div class="action-btns">
           ${statusPill(st)}
-          <button style="background:none;border:1px solid #e0dbd0;color:var(--gray-mid);padding:4px 8px;border-radius:4px;font-size:10px;cursor:pointer;font-family:'DM Sans',sans-serif;" onclick="resetToPending('${l.ts}')">↩ Reset</button>
+          <button style="background:none;border:1px solid #e0dbd0;color:var(--gray-mid);padding:4px 8px;border-radius:4px;font-size:10px;cursor:pointer;font-family:sans-serif,sans-serif;" onclick="resetToPending('${l.ts}')">↩ Reset</button>
          </div>`;
 
     return `<tr data-campus="${l.campus||''}" data-name="${(l.fname+' '+l.lname).toLowerCase()}" data-status="${st}">
@@ -3972,7 +3972,7 @@ function renderRequests() {
          </div>`
       : `<div class="action-btns" style="align-items:center;">
            ${statusPill(st)}
-           <button style="background:none;border:1px solid #e0dbd0;color:var(--gray-mid);padding:3px 7px;border-radius:4px;font-size:10px;cursor:pointer;font-family:'DM Sans',sans-serif;" onclick="resetToPending('${l.ts}')">↩</button>
+           <button style="background:none;border:1px solid #e0dbd0;color:var(--gray-mid);padding:3px 7px;border-radius:4px;font-size:10px;cursor:pointer;font-family:sans-serif,sans-serif;" onclick="resetToPending('${l.ts}')">↩</button>
          </div>`;
 
     return `<tr data-campus="${l.campus||''}" data-name="${(l.fname+' '+l.lname).toLowerCase()}" data-status="${st}" data-enrol="${l.enrol_status||''}">
@@ -4155,11 +4155,11 @@ function renderPipeline() {
     '<div style="background:rgba(45,158,95,0.08);border:1px solid rgba(45,158,95,0.2);border-radius:8px;padding:14px 16px;margin-bottom:16px;">' +
     '<p style="font-size:12px;font-weight:700;color:#1a7a45;margin:0 0 10px;text-transform:uppercase;letter-spacing:0.07em;">✅ Approved Tours — Set Enrollment Status</p>' +
     '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">' +
-    '<select id="quick-approved-select" style="flex:1;min-width:200px;padding:8px 12px;border:1.5px solid rgba(45,158,95,0.3);border-radius:6px;font-family:'DM Sans',sans-serif;font-size:13px;background:white;outline:none;">' +
+    '<select id="quick-approved-select" style="flex:1;min-width:200px;padding:8px 12px;border:1.5px solid rgba(45,158,95,0.3);border-radius:6px;font-family:sans-serif,sans-serif;font-size:13px;background:white;outline:none;">' +
     '<option value="">Select an approved parent…</option>' +
     approvedOptions +
     '</select>' +
-    '<select id="quick-enrol-status" style="padding:8px 12px;border:1.5px solid rgba(45,158,95,0.3);border-radius:6px;font-family:'DM Sans',sans-serif;font-size:13px;background:white;outline:none;">' +
+    '<select id="quick-enrol-status" style="padding:8px 12px;border:1.5px solid rgba(45,158,95,0.3);border-radius:6px;font-family:sans-serif,sans-serif;font-size:13px;background:white;outline:none;">' +
     '<option value="Interested">👀 Interested</option>' +
     '<option value="Toured">🏫 Toured</option>' +
     '<option value="Considering">🤔 Considering</option>' +
@@ -4167,7 +4167,7 @@ function renderPipeline() {
     '<option value="Undecided">⏸ Has Not Decided</option>' +
     '<option value="Not Enrolling">❌ Not Enrolling</option>' +
     '</select>' +
-    '<button onclick="quickSetEnrolFromApproved()" style="background:linear-gradient(135deg,#2d9e5f,#3dbf72);color:white;border:none;padding:9px 18px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">Set Status</button>' +
+    '<button onclick="quickSetEnrolFromApproved()" style="background:linear-gradient(135deg,#2d9e5f,#3dbf72);color:white;border:none;padding:9px 18px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;font-family:sans-serif;">Set Status</button>' +
     '</div>' +
     '</div>'
   ) : '';
@@ -4183,12 +4183,12 @@ function renderPipeline() {
   container.innerHTML =
     '<div class="panel" style="margin-bottom:20px;">' +
     '<div class="panel-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">' +
-    '<span style="font-family:'DM Serif Display',serif;font-size:16px;color:var(--navy);">' +
+    '<span style="font-family:serif;font-size:16px;color:var(--navy);">' +
     'Enrollment Pipeline ' +
-    '<span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:400;color:var(--gold);margin-left:8px;">' +
-    tracked.length + ' tracked · ' + untracked.length + ' pending</span>' +
+    '<span style="font-family:sans-serif;font-size:12px;font-weight:400;color:var(--gold);margin-left:8px;">' +
+    tracked.length + ' tracked &middot; ' + untracked.length + ' pending</span>' +
     '</span>' +
-    '<button class="btn-add-pipeline-lead" onclick="openPipeModal()">➕ Add External Lead</button>' +
+    '<button class="btn-add-pipeline-lead" onclick="openPipeModal()">+ Add External Lead</button>' +
     '</div>' +
     quickAddHtml +
     untrackedWarn +
