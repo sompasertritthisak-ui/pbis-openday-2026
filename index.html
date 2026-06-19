@@ -4093,66 +4093,151 @@ function renderPipeline() {
   const leads = getLeads();
 
   const stages = [
-    { key:'Interested',    label:'Interested',     icon:'👀', cls:'col-interested' },
-    { key:'Toured',        label:'Toured',          icon:'🏫', cls:'col-toured' },
-    { key:'Considering',   label:'Considering',     icon:'🤔', cls:'col-considering' },
-    { key:'Enrolled',      label:'Enrolled',        icon:'🎓', cls:'col-enrolled' },
-    { key:'Undecided',     label:"Has Not Decided",  icon:'⏸️', cls:'col-undecided' },
-    { key:'Not Enrolling', label:'Not Enrolling',   icon:'❌', cls:'col-notEnrolling' },
+    { key:'Interested',    label:'Interested',    icon:'👀', cls:'col-interested' },
+    { key:'Toured',        label:'Toured',         icon:'🏫', cls:'col-toured' },
+    { key:'Considering',   label:'Considering',    icon:'🤔', cls:'col-considering' },
+    { key:'Enrolled',      label:'Enrolled',       icon:'🎓', cls:'col-enrolled' },
+    { key:'Undecided',     label:'Has Not Decided',icon:'⏸', cls:'col-undecided' },
+    { key:'Not Enrolling', label:'Not Enrolling',  icon:'❌', cls:'col-notEnrolling' },
   ];
 
   const campusBadge = (c) => {
     const map = {'EY':'badge-ey','Primary':'badge-pri','Secondary':'badge-sec'};
-    return `<span class="badge ${map[c]||'badge-ey'}" style="font-size:9px;">${c||'?'}</span>`;
+    return '<span class="badge ' + (map[c]||'badge-ey') + '" style="font-size:9px;">' + (c||'?') + '</span>';
   };
 
-  const untracked = leads.filter(l => !l.enrol_status);
-  const totalTracked = leads.filter(l => l.enrol_status).length;
+  // APPROVED tour requests automatically appear in pipeline
+  // They show in pipeline once they have any enrol_status
+  const approvedLeads = leads.filter(l =>
+    l.status === 'Approved' || l.status === 'Rescheduled' || l.pipeline_lead
+  );
+  const tracked   = approvedLeads.filter(l => l.enrol_status);
+  const untracked = approvedLeads.filter(l => !l.enrol_status);
 
-  const cols = stages.map(stage => {
-    const stagLeads = leads.filter(l => l.enrol_status === stage.key);
-    const cards = stagLeads.map(l => `
-      <div class="pipeline-card" onclick="openEnrolModal('${l.ts}')">
-        <h4>${l.fname||'—'} ${l.lname||''}</h4>
-        <p>📞 ${l.phone||'—'}</p>
-        <div class="card-meta">
-          ${campusBadge(l.campus)}
-          <span style="font-size:10px;color:var(--gray-mid);">${l.num_children||'?'} child(ren)</span>
-        </div>
-        ${l.enrol_notes ? `<p style="font-size:11px;color:var(--gray-mid);margin-top:6px;font-style:italic;">"${l.enrol_notes.slice(0,60)}${l.enrol_notes.length>60?'…':''}"</p>` : ''}
-      </div>`).join('');
+  const cols = stages.map(function(stage) {
+    const stagLeads = approvedLeads.filter(l => l.enrol_status === stage.key);
+    const cards = stagLeads.map(function(l) {
+      const notes = l.enrol_notes
+        ? '<p style="font-size:11px;color:var(--gray-mid);margin-top:6px;font-style:italic;">"' +
+          l.enrol_notes.slice(0,60) + (l.enrol_notes.length>60?'…':'') + '"</p>'
+        : '';
+      return '<div class="pipeline-card" onclick="openEnrolModal('' + l.ts + '')">' +
+        '<h4>' + (l.fname||'—') + ' ' + (l.lname||'') + '</h4>' +
+        '<p>📞 ' + (l.phone||'—') + '</p>' +
+        '<div class="card-meta">' +
+          campusBadge(l.campus) +
+          '<span style="font-size:10px;color:var(--gray-mid);">' + (l.num_children||'?') + ' child(ren)</span>' +
+        '</div>' +
+        notes +
+      '</div>';
+    }).join('');
 
-    return `<div class="pipeline-col ${stage.cls}">
-      <div class="pipeline-col-header">
-        <span>${stage.icon} ${stage.label}</span>
-        <span class="col-count">${stagLeads.length}</span>
-      </div>
-      <div class="pipeline-col-body">
-        ${cards || '<div class="pipeline-empty">No leads here yet</div>'}
-      </div>
-    </div>`;
+    return '<div class="pipeline-col ' + stage.cls + '">' +
+      '<div class="pipeline-col-header">' +
+        '<span>' + stage.icon + ' ' + stage.label + '</span>' +
+        '<span class="col-count">' + stagLeads.length + '</span>' +
+      '</div>' +
+      '<div class="pipeline-col-body">' +
+        (cards || '<div class="pipeline-empty">No leads here yet</div>') +
+      '</div>' +
+    '</div>';
   }).join('');
 
-  container.innerHTML = `
-    <div class="panel" style="margin-bottom:20px;">
-      <div class="panel-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-        <span style="font-family:'DM Serif Display',serif;font-size:16px;color:var(--navy);">
-          Enrollment Pipeline
-          <span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:400;color:var(--gold);margin-left:8px;">${totalTracked} of ${leads.length} tracked · ${untracked.length} pending assignment</span>
-        </span>
-        <button class="btn-add-pipeline-lead" onclick="openPipeModal()">
-          ➕ Add Manual Lead
-        </button>
-      </div>
-      ${untracked.length > 0 ? `
-        <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:8px;padding:10px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px;">
-          <span style="font-size:16px;">⚠️</span>
-          <span style="font-size:13px;color:#b45309;font-weight:500;">${untracked.length} request${untracked.length>1?'s':''} not yet assigned an enrollment status — go to <strong>Tour Requests</strong> tab to update.</span>
-        </div>` : ''}
-      <div class="pipeline-wrap">
-        <div class="pipeline-board">${cols}</div>
-      </div>
-    </div>`;
+  // Build approved leads selector for quick-add
+  const approvedOptions = approvedLeads.filter(l => !l.enrol_status).map(function(l) {
+    return '<option value="' + l.ts + '">' +
+      (l.fname||'') + ' ' + (l.lname||'') +
+      ' · ' + (l.campus||'?') + ' · ' + (l.phone||'—') +
+    '</option>';
+  }).join('');
+
+  const quickAddHtml = approvedOptions ? (
+    '<div style="background:rgba(45,158,95,0.08);border:1px solid rgba(45,158,95,0.2);border-radius:8px;padding:14px 16px;margin-bottom:16px;">' +
+    '<p style="font-size:12px;font-weight:700;color:#1a7a45;margin:0 0 10px;text-transform:uppercase;letter-spacing:0.07em;">✅ Approved Tours — Set Enrollment Status</p>' +
+    '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">' +
+    '<select id="quick-approved-select" style="flex:1;min-width:200px;padding:8px 12px;border:1.5px solid rgba(45,158,95,0.3);border-radius:6px;font-family:'DM Sans',sans-serif;font-size:13px;background:white;outline:none;">' +
+    '<option value="">Select an approved parent…</option>' +
+    approvedOptions +
+    '</select>' +
+    '<select id="quick-enrol-status" style="padding:8px 12px;border:1.5px solid rgba(45,158,95,0.3);border-radius:6px;font-family:'DM Sans',sans-serif;font-size:13px;background:white;outline:none;">' +
+    '<option value="Interested">👀 Interested</option>' +
+    '<option value="Toured">🏫 Toured</option>' +
+    '<option value="Considering">🤔 Considering</option>' +
+    '<option value="Enrolled">🎓 Enrolled</option>' +
+    '<option value="Undecided">⏸ Has Not Decided</option>' +
+    '<option value="Not Enrolling">❌ Not Enrolling</option>' +
+    '</select>' +
+    '<button onclick="quickSetEnrolFromApproved()" style="background:linear-gradient(135deg,#2d9e5f,#3dbf72);color:white;border:none;padding:9px 18px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">Set Status</button>' +
+    '</div>' +
+    '</div>'
+  ) : '';
+
+  const untrackedWarn = untracked.length > 0 ? (
+    '<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:8px;padding:10px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px;">' +
+    '<span style="font-size:16px;">⚠️</span>' +
+    '<span style="font-size:13px;color:#b45309;font-weight:500;">' +
+    untracked.length + ' approved tour' + (untracked.length>1?'s':'') + ' not yet assigned an enrollment stage.</span>' +
+    '</div>'
+  ) : '';
+
+  container.innerHTML =
+    '<div class="panel" style="margin-bottom:20px;">' +
+    '<div class="panel-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">' +
+    '<span style="font-family:'DM Serif Display',serif;font-size:16px;color:var(--navy);">' +
+    'Enrollment Pipeline ' +
+    '<span style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:400;color:var(--gold);margin-left:8px;">' +
+    tracked.length + ' tracked · ' + untracked.length + ' pending</span>' +
+    '</span>' +
+    '<button class="btn-add-pipeline-lead" onclick="openPipeModal()">➕ Add External Lead</button>' +
+    '</div>' +
+    quickAddHtml +
+    untrackedWarn +
+    '<div class="pipeline-wrap"><div class="pipeline-board">' + cols + '</div></div>' +
+    '</div>';
+}
+
+// Quick-set enrollment from approved tour dropdown
+function quickSetEnrolFromApproved() {
+  const ts     = document.getElementById('quick-approved-select')?.value;
+  const status = document.getElementById('quick-enrol-status')?.value;
+  if(!ts)     { showToast('⚠️ Please select a parent first'); return; }
+  if(!status) { showToast('⚠️ Please select an enrollment status'); return; }
+
+  const leads = getLeads();
+  const lead  = leads.find(l => l.ts === ts);
+  if(!lead) return;
+
+  // 1. Record as pending so refresh doesn't wipe it
+  recordPending(ts, { enrol_status: status, enrol_updated: new Date().toISOString() });
+
+  // 2. Apply locally
+  applyLocalMutation(function(ls) {
+    const idx = ls.findIndex(l => l.ts === ts);
+    if(idx !== -1) ls[idx].enrol_status = status;
+  });
+
+  // 3. Write to Pipeline Leads sheet as a NEW ROW (addPipelineLead)
+  //    This is the confirmed-working action from our debug
+  postToSheets({
+    action:       'addPipelineLead',
+    fname:        lead.fname        || '',
+    lname:        lead.lname        || '',
+    nationality:  lead.nationality  || '',
+    phone:        lead.phone        || '',
+    email:        lead.email        || '',
+    relationship: lead.relationship || '',
+    campus:       lead.campus       || '',
+    num_children: lead.num_children || '',
+    translator:   lead.translator   || '',
+    source:       lead.source       || 'Open Day Tour',
+    enrol_status: status,
+    notes:        'Auto-added from approved tour request',
+    assigned:     '',
+    ts:           lead.ts
+  }).then(function() {
+    showToast('✅ ' + (lead.fname||'') + ' added to pipeline — ' + status + ' · Saved to Sheets');
+    renderPipeline();
+  });
 }
 
 // ══════════════════════════════════════════════════════════════════
