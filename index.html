@@ -4155,7 +4155,7 @@ function renderPipeline() {
         ? '<p style="font-size:11px;color:var(--gray-mid);margin-top:6px;font-style:italic;">"' +
           l.enrol_notes.slice(0,60) + (l.enrol_notes.length>60?'…':'') + '"</p>'
         : '';
-      return '<div class="pipeline-card" onclick="openEnrolModal('' + l.ts + '')">' +
+      return '<div class="pipeline-card" onclick="openEnrolModal(\'' + l.ts + '\')">' +
         '<h4>' + (l.fname||'—') + ' ' + (l.lname||'') + '</h4>' +
         '<p>📞 ' + (l.phone||'—') + '</p>' +
         '<div class="card-meta">' +
