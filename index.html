@@ -81,7 +81,7 @@ section{padding:90px 5%;}
 .section-title em{font-style:italic;color:var(--gold);}
 .section-sub{font-size:16px;line-height:1.75;color:var(--gray-mid);max-width:620px;font-weight:300;}
 .gold-divider{width:60px;height:2px;background:linear-gradient(90deg,var(--gold),var(--gold-light));margin-bottom:22px;}
-.fade-up{opacity:0;transform:translateY(28px);transition:opacity 0.65s ease,transform 0.65s ease;}
+.fade-up{opacity:1;transform:translateY(0);transition:opacity 0.65s ease,transform 0.65s ease;}
 .fade-up.visible{opacity:1;transform:translateY(0);}
 
 .btn-primary{
@@ -2527,11 +2527,13 @@ function trackEvent(type, data){
 }
 
 
-// Scroll reveal
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: 0.1 });
-document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+// Scroll reveal — wrapped in try/catch so any error doesn't kill the page
+try {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(function(e) { if(e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-up').forEach(function(el) { observer.observe(el); });
+} catch(obsErr) { console.warn('Observer error:', obsErr); }
 
 // Campus tour tabs
 function switchTour(campus, btn) {
@@ -3621,10 +3623,10 @@ function deleteLead(ts) {
 }
 
 // Auto-load on page open
-loadData();
+try { loadData(); } catch(e) { console.warn("loadData error:", e); }
 
 // Auto-refresh every 20 seconds — pending mutations protected from overwrites
-setInterval(async () => { await loadData(); }, 20000);
+try { setInterval(async function() { try { await loadData(); } catch(e){} }, 20000); } catch(e){}
 
 
 /* ════════════════════════════════════════
