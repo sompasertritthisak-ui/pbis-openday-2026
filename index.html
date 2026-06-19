@@ -305,7 +305,7 @@ footer{background:#060f0a;padding:48px 5% 30px;color:rgba(255,255,255,0.4);}
 /* ── STICKY MOBILE CTA ── */
 .sticky-mobile-cta{
   display:none;
-  position:fixed;bottom:0;left:0;right:0;z-index:999;
+  position:fixed;bottom:0;left:0;right:200px;z-index:998;
   background:linear-gradient(135deg,var(--gold),var(--gold-light));
   color:var(--navy);
   text-align:center;padding:14px 20px;
@@ -1118,6 +1118,9 @@ body{font-family:'DM Sans',sans-serif;background:#f4f1ea;color:var(--text);min-h
   transition: all 0.25s;
   text-decoration: none;
   user-select: none;
+  -webkit-appearance: none;
+  appearance: none;
+  outline: none;
 }
 .admin-toggle:hover {
   transform: translateY(-2px);
@@ -2213,7 +2216,7 @@ body.dashboard-active nav              { display: none !important; }
 
 <!-- ── ADMIN TOGGLE (visible on landing page, hidden on dashboard) ── -->
 <!-- PREMIUM ADMIN BUTTON -->
-<div class="admin-toggle" id="admin-btn" onclick="openLoginModal()" title="PBIS Admissions Team Only">
+<button class="admin-toggle" id="admin-btn" onclick="openLoginModal()" title="PBIS Admissions Team Only" type="button">
   <div class="admin-toggle-logo">
     <img id="admin-btn-logo" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="PBIS">
   </div>
@@ -2225,7 +2228,7 @@ body.dashboard-active nav              { display: none !important; }
     <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
     <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
   </svg>
-</div>
+</button>
 
 <!-- PREMIUM LOGIN MODAL -->
 <div class="login-modal-backdrop" id="login-modal-backdrop" onclick="handleLoginBackdrop(event)">
@@ -2558,10 +2561,16 @@ function switchTour(campus, btn) {
 
 // Countdown timer to 8 July 2026
 function updateCountdown() {
-  const target = new Date('2026-07-08T09:30:00');
-  const now = new Date();
-  const diff = target - now;
-  if(diff <= 0) { document.querySelector('.countdown-wrap').innerHTML='<div style="color:var(--gold-light);font-size:20px;font-weight:600;">🎉 Open Day is Today!</div>'; return; }
+  var cdDays = document.getElementById('cd-days');
+  if(!cdDays) return; // elements not in DOM yet
+  var target = new Date('2026-07-08T09:30:00');
+  var now    = new Date();
+  var diff   = target - now;
+  if(diff <= 0) {
+    var wrap = document.querySelector('.countdown-wrap');
+    if(wrap) wrap.innerHTML = '<div style="color:var(--gold-light);font-size:20px;font-weight:600;">Open Day is Today!</div>';
+    return;
+  }
   const d = Math.floor(diff/86400000);
   const h = Math.floor((diff%86400000)/3600000);
   const m = Math.floor((diff%3600000)/60000);
@@ -2571,10 +2580,15 @@ function updateCountdown() {
   document.getElementById('cd-mins').textContent = String(m).padStart(2,'0');
   document.getElementById('cd-secs').textContent = String(s).padStart(2,'0');
 }
+// Countdown - run immediately and every second
 try {
   updateCountdown();
-  setInterval(updateCountdown, 1000);
-} catch(cdErr) { console.warn('Countdown error:', cdErr); }
+} catch(e1) { console.warn('Countdown init error:', e1); }
+try {
+  setInterval(function() {
+    try { updateCountdown(); } catch(e) {}
+  }, 1000);
+} catch(e2) { console.warn('Countdown interval error:', e2); }
 
 
 // ── INPUT SANITIZER — strip HTML tags to prevent XSS
