@@ -4673,6 +4673,255 @@ document.addEventListener('keydown', e => {
   }
 });
 
+
+// ══════════════════════════════════════════════════════════════════
+// OVERDUE TAB
+// ══════════════════════════════════════════════════════════════════
+
+var _callbackTs   = null;
+var _callbackLead = null;
+
+function getOverdueLeads() {
+  try { return JSON.parse(localStorage.getItem('pbis_overdue') || '[]'); }
+  catch(e) { return []; }
+}
+
+function saveOverdueLeads(leads) {
+  try { localStorage.setItem('pbis_overdue', JSON.stringify(leads)); }
+  catch(e) {}
+}
+
+function renderOverdue() {
+  var container = document.getElementById('tab-content-overdue');
+  if(!container) return;
+  var overdue  = getOverdueLeads();
+  var allLeads = getLeads();
+  var approved = allLeads.filter(function(l) {
+    return l.status === 'Approved' || l.status === 'Rescheduled';
+  });
+  var badge = document.getElementById('overdue-tab-count');
+  if(badge) badge.textContent = overdue.length;
+  var emailSent    = overdue.filter(function(l) { return l.callback_sent; }).length;
+  var notContacted = overdue.length - emailSent;
+  var available    = approved.filter(function(l) {
+    return !overdue.find(function(o) { return o.ts === l.ts; });
+  });
+
+  var statsHtml = '';
+  if(overdue.length > 0) {
+    statsHtml =
+      '<div style="display:flex;gap:0;background:var(--white);border-radius:12px;overflow:hidden;border:1px solid rgba(224,82,82,0.15);margin-bottom:20px;box-shadow:0 2px 12px rgba(224,82,82,0.08);">' +
+        '<div style="flex:1;padding:20px;text-align:center;border-right:1px solid rgba(224,82,82,0.1);">' +
+          '<div style="font-size:32px;font-weight:700;color:#e05252;font-family:serif;">' + overdue.length + '</div>' +
+          '<div style="font-size:10px;color:var(--gray-mid);text-transform:uppercase;letter-spacing:0.08em;margin-top:3px;">Total No-Shows</div>' +
+        '</div>' +
+        '<div style="flex:1;padding:20px;text-align:center;border-right:1px solid rgba(224,82,82,0.1);">' +
+          '<div style="font-size:32px;font-weight:700;color:var(--gold);font-family:serif;">' + emailSent + '</div>' +
+          '<div style="font-size:10px;color:var(--gray-mid);text-transform:uppercase;letter-spacing:0.08em;margin-top:3px;">Emails Sent</div>' +
+        '</div>' +
+        '<div style="flex:1;padding:20px;text-align:center;">' +
+          '<div style="font-size:32px;font-weight:700;color:#9a9080;font-family:serif;">' + notContacted + '</div>' +
+          '<div style="font-size:10px;color:var(--gray-mid);text-transform:uppercase;letter-spacing:0.08em;margin-top:3px;">Not Contacted</div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  var addPanelHtml =
+    '<div style="background:var(--white);border-radius:14px;border:1px solid rgba(224,82,82,0.15);overflow:hidden;margin-bottom:24px;box-shadow:0 4px 24px rgba(224,82,82,0.07);">' +
+      '<div style="background:linear-gradient(135deg,#3d0a0a,#7a1a1a);padding:18px 24px;display:flex;align-items:center;gap:12px;">' +
+        '<div style="width:36px;height:36px;background:rgba(255,255,255,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;">&#9888;</div>' +
+        '<div>' +
+          '<div style="font-size:13px;font-weight:700;color:#e8c96e;letter-spacing:0.06em;text-transform:uppercase;">Mark as No-Show</div>' +
+          '<div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">Select approved parents who did not attend Open Day on 8 July 2026</div>' +
+        '</div>' +
+      '</div>' +
+      '<div style="padding:20px 24px;">';
+
+  if(available.length === 0) {
+    addPanelHtml += '<div style="text-align:center;padding:16px;color:var(--gray-mid);font-size:13px;">' +
+      (approved.length === 0 ? 'No approved tour requests yet.' : 'All approved parents processed.') + '</div>';
+  } else {
+    addPanelHtml +=
+      '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">' +
+        '<select id="overdue-select-lead" style="flex:1;min-width:240px;padding:11px 14px;border:1.5px solid #e0dbd0;border-radius:8px;font-family:sans-serif;font-size:13px;background:var(--cream);outline:none;color:var(--navy);">' +
+          '<option value="">Select an approved parent to mark as no-show...</option>' +
+          available.map(function(l) {
+            var d = new Date(l.ts).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+            return '<option value="' + l.ts + '">' +
+              (l.fname||'') + ' ' + (l.lname||'') +
+              ' - ' + (l.campus||'?') + ' Campus' +
+              ' - ' + (l.phone||'no phone') +
+              ' - Registered ' + d + '</option>';
+          }).join('') +
+        '</select>' +
+        '<button type="button" onclick="addToOverdue()" style="background:linear-gradient(135deg,#e05252,#f06060);color:white;border:none;padding:11px 20px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:sans-serif;white-space:nowrap;box-shadow:0 3px 14px rgba(224,82,82,0.3);">Mark No-Show</button>' +
+      '</div>' +
+      '<p style="font-size:12px;color:var(--gray-mid);margin:10px 0 0;">' + available.length + ' approved request' + (available.length!==1?'s':'') + ' available</p>';
+  }
+  addPanelHtml += '</div></div>';
+
+  var cardsHtml = '';
+  if(overdue.length === 0) {
+    cardsHtml =
+      '<div style="background:var(--white);border-radius:14px;border:1px solid rgba(45,158,95,0.15);padding:48px 24px;text-align:center;">' +
+        '<div style="font-size:48px;margin-bottom:12px;">&#10003;</div>' +
+        '<h3 style="font-family:serif;font-weight:400;font-size:20px;color:var(--navy);margin:0 0 8px;">No Overdue Records</h3>' +
+        '<p style="color:var(--gray-mid);font-size:14px;margin:0;">No-show records will appear here once marked above.</p>' +
+      '</div>';
+  } else {
+    cardsHtml = '<div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#e05252;margin-bottom:12px;">No-Show Records - ' + overdue.length + '</div>';
+    cardsHtml += overdue.map(function(lead) {
+      var tc      = safeId(lead.ts);
+      var sent    = lead.callback_sent
+        ? '<span style="font-size:11px;color:#2d9e5f;font-weight:600;background:rgba(45,158,95,0.1);padding:3px 10px;border-radius:100px;">Followed up</span>'
+        : '<span style="font-size:11px;color:#9a9080;background:rgba(0,0,0,0.04);padding:3px 10px;border-radius:100px;">Not contacted</span>';
+      var addedD  = lead.overdue_added_at ? new Date(lead.overdue_added_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'2-digit'}) : '-';
+      var regD    = new Date(lead.ts).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'2-digit'});
+      return '<div style="background:var(--white);border-radius:12px;border:1px solid rgba(224,82,82,0.12);border-left:4px solid #e05252;padding:20px 22px;margin-bottom:12px;box-shadow:0 2px 14px rgba(224,82,82,0.06);">' +
+        '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;">' +
+          '<div>' +
+            '<div style="font-size:16px;font-weight:700;color:var(--navy);font-family:serif;margin-bottom:4px;">' + (lead.fname||'-') + ' ' + (lead.lname||'') + '</div>' +
+            '<div style="display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--gray-mid);margin-bottom:6px;">' +
+              '<span>Tel: ' + (lead.phone||'-') + '</span>' +
+              '<span>Email: ' + (lead.email||'-') + '</span>' +
+              '<span>Campus: ' + (lead.campus||'?') + '</span>' +
+              '<span>Nationality: ' + (lead.nationality||'-') + '</span>' +
+            '</div>' +
+            sent +
+          '</div>' +
+          '<div style="display:flex;gap:7px;flex-wrap:wrap;">' +
+            '<button type="button" data-act="callback" data-ts="' + lead.ts + '" style="background:linear-gradient(135deg,#c9a84c,#e8c96e);color:var(--navy);border:none;border-radius:6px;padding:8px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:sans-serif;">Follow-up Email</button>' +
+            '<button type="button" data-act="enroll" data-ts="' + lead.ts + '" style="background:linear-gradient(135deg,#2d9e5f,#3dbf72);color:white;border:none;border-radius:6px;padding:8px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:sans-serif;">Mark Enrolled</button>' +
+            '<button type="button" data-act="remove" data-ts="' + lead.ts + '" style="background:none;border:1px solid rgba(224,82,82,0.25);color:#e05252;border-radius:6px;padding:8px 10px;font-size:11px;cursor:pointer;font-family:sans-serif;">Remove</button>' +
+          '</div>' +
+        '</div>' +
+        '<div style="display:flex;gap:8px;flex-wrap:wrap;padding:10px 0;border-top:1px solid rgba(224,82,82,0.08);border-bottom:1px solid rgba(224,82,82,0.08);margin-bottom:10px;">' +
+          '<span style="background:var(--cream);border-radius:6px;padding:5px 10px;font-size:11px;">Children: <strong>' + (lead.num_children||'-') + '</strong></span>' +
+          '<span style="background:var(--cream);border-radius:6px;padding:5px 10px;font-size:11px;">Translator: <strong>' + (lead.translator==='Yes'?'Yes':'No') + '</strong></span>' +
+          '<span style="background:var(--cream);border-radius:6px;padding:5px 10px;font-size:11px;">Registered: <strong>' + regD + '</strong></span>' +
+          '<span style="background:rgba(224,82,82,0.06);border-radius:6px;padding:5px 10px;font-size:11px;">No-Show: <strong style="color:#e05252;">' + addedD + '</strong></span>' +
+        '</div>' +
+        '<label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--gray-mid);margin-bottom:5px;">Notes</label>' +
+        '<textarea data-act="note" data-ts="' + lead.ts + '" id="overdue-notes-' + tc + '" style="width:100%;padding:9px 12px;border:1.5px solid rgba(224,82,82,0.15);border-radius:6px;font-family:sans-serif;font-size:12px;background:rgba(224,82,82,0.02);outline:none;resize:vertical;min-height:52px;color:var(--navy);" placeholder="Internal notes...">' + (lead.overdue_notes||'') + '</textarea>' +
+      '</div>';
+    }).join('');
+  }
+
+  container.innerHTML = '<div>' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">' +
+      '<div><h2 style="font-family:serif;font-size:20px;font-weight:400;color:var(--navy);margin:0 0 4px;">Overdue Requests</h2>' +
+      '<p style="font-size:13px;color:var(--gray-mid);margin:0;">Approved parents who did not attend Open Day on 8 July 2026</p></div>' +
+    '</div>' +
+    statsHtml + addPanelHtml + cardsHtml + '</div>';
+}
+
+function addToOverdue() {
+  var sel = document.getElementById('overdue-select-lead');
+  var ts  = sel ? sel.value : '';
+  if(!ts) { showToast('Please select a parent first'); return; }
+  var leads = getLeads();
+  var lead  = leads.find(function(l) { return l.ts === ts; });
+  if(!lead) return;
+  var overdue = getOverdueLeads();
+  if(overdue.find(function(o) { return o.ts === ts; })) { showToast('Already in overdue list'); return; }
+  var entry = Object.assign({}, lead, { overdue_added_at: new Date().toISOString(), overdue_notes:'', callback_sent:false, callback_sent_at:null });
+  overdue.push(entry);
+  saveOverdueLeads(overdue);
+  postToSheets({ action:'addOverdueLead', ts:lead.ts, fname:lead.fname||'', lname:lead.lname||'', nationality:lead.nationality||'', phone:lead.phone||'', email:lead.email||'', relationship:lead.relationship||'', campus:lead.campus||'', num_children:lead.num_children||'', translator:lead.translator||'', source:lead.source||'', overdue_added_at:entry.overdue_added_at, notes:'' }).catch(function(){});
+  var badge = document.getElementById('overdue-tab-count');
+  if(badge) badge.textContent = overdue.length;
+  showToast('Marked as no-show: ' + (lead.fname||'') + ' ' + (lead.lname||''));
+  renderOverdue();
+}
+
+function saveOverdueNote(ts) {
+  var el = document.getElementById('overdue-notes-' + safeId(ts));
+  var notes = el ? el.value : '';
+  var overdue = getOverdueLeads();
+  var idx = overdue.findIndex(function(o) { return o.ts === ts; });
+  if(idx !== -1) { overdue[idx].overdue_notes = notes; saveOverdueLeads(overdue); postToSheets({ action:'updateOverdueNote', ts:ts, notes:notes }).catch(function(){}); }
+}
+
+function removeFromOverdue(ts) {
+  if(!confirm('Remove from Overdue list?')) return;
+  var overdue = getOverdueLeads().filter(function(o) { return o.ts !== ts; });
+  saveOverdueLeads(overdue);
+  var badge = document.getElementById('overdue-tab-count');
+  if(badge) badge.textContent = overdue.length;
+  showToast('Removed from Overdue');
+  renderOverdue();
+}
+
+function markOverdueEnrolled(ts) {
+  var overdue = getOverdueLeads();
+  var lead    = overdue.find(function(o) { return o.ts === ts; });
+  if(!lead) return;
+  recordPending(ts, { enrol_status:'Enrolled' });
+  applyLocalMutation(function(leads) { var i = leads.findIndex(function(l){ return l.ts===ts; }); if(i!==-1) leads[i].enrol_status='Enrolled'; });
+  postToSheets({ action:'addPipelineLead', fname:lead.fname||'', lname:lead.lname||'', nationality:lead.nationality||'', phone:lead.phone||'', email:lead.email||'', relationship:lead.relationship||'', campus:lead.campus||'', num_children:lead.num_children||'', translator:lead.translator||'', source:lead.source||'', enrol_status:'Enrolled', notes:'Enrolled after Open Day follow-up', assigned:'', ts:lead.ts }).catch(function(){});
+  removeFromOverdue(ts);
+  showToast('Marked as Enrolled: ' + (lead.fname||''));
+}
+
+function openCallbackModal(ts) {
+  var overdue = getOverdueLeads();
+  var lead    = overdue.find(function(o) { return o.ts === ts; });
+  if(!lead) return;
+  _callbackTs = ts; _callbackLead = lead;
+  var name = (lead.fname||'') + ' ' + (lead.lname||'');
+  var sub  = document.getElementById('callback-modal-subtitle');
+  if(sub) sub.textContent = 'To: ' + name + ' - ' + (lead.email||'-');
+  var extra = document.getElementById('callback-extra-note');
+  if(extra) extra.value = '';
+  var prev = document.getElementById('callback-preview-text');
+  if(prev) prev.innerHTML = '<strong>Dear ' + name + ',</strong><br><br>We hope you and your family are well. We noticed that you were unable to join us for the <strong>PBIS Open Day on 8 July 2026</strong> at our Primary Campus - we completely understand that schedules can change.<br><br>We would love to still welcome your family to Panyathip British International School. If you are still interested in learning more about our programmes or arranging a private campus visit, please do not hesitate to reach out to us.<br><br>Our admissions team is always happy to arrange a personalised tour at a time that suits you best.<br><br><em style="color:var(--gold);">"Become the best you can be." - PBIS</em>';
+  var backdrop = document.getElementById('callback-modal-backdrop');
+  if(backdrop) { backdrop.classList.add('open'); backdrop.style.display='flex'; }
+}
+
+function closeCallbackModal() {
+  var backdrop = document.getElementById('callback-modal-backdrop');
+  if(backdrop) { backdrop.classList.remove('open'); backdrop.style.display=''; }
+  _callbackTs = null; _callbackLead = null;
+}
+
+function sendCallbackEmail() {
+  if(!_callbackTs || !_callbackLead) return;
+  var lead  = _callbackLead;
+  var extra = document.getElementById('callback-extra-note');
+  var note  = extra ? extra.value.trim() : '';
+  var contact = lead.campus==='EY' ? '+856 20 5728 0925' : lead.campus==='Secondary' ? '+856 20 5538 6672' : '+856 20 5538 6636';
+  postToSheets({ action:'sendCallbackEmail', email:lead.email||'', fname:lead.fname||'', lname:lead.lname||'', campus:lead.campus||'Primary', phone:lead.phone||'', contact:contact, extra_note:note, ts:_callbackTs }).then(function() {
+    var overdue = getOverdueLeads();
+    var idx = overdue.findIndex(function(o) { return o.ts === _callbackTs; });
+    if(idx !== -1) { overdue[idx].callback_sent = true; overdue[idx].callback_sent_at = new Date().toISOString(); saveOverdueLeads(overdue); }
+    showToast('Follow-up email sent to ' + (lead.email||'parent'));
+    closeCallbackModal();
+    renderOverdue();
+  });
+}
+
+
+// Delegated click listener for overdue tab buttons
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest('[data-act]');
+  if(!btn) return;
+  var act = btn.getAttribute('data-act');
+  var ts  = btn.getAttribute('data-ts');
+  if(!ts) return;
+  if(act === 'callback') openCallbackModal(ts);
+  if(act === 'enroll')   markOverdueEnrolled(ts);
+  if(act === 'remove')   removeFromOverdue(ts);
+});
+
+// Delegated change listener for overdue notes
+document.addEventListener('change', function(e) {
+  if(e.target && e.target.getAttribute('data-act') === 'note') {
+    saveOverdueNote(e.target.getAttribute('data-ts'));
+  }
+});
+
+
 </script>
 
 </body>
