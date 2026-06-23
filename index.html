@@ -1568,6 +1568,86 @@ body, html { top:0!important; }
 
 
 
+<!-- ── Google Analytics 4 ── -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6RZR4R5R6R"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-6RZR4R5R6R', {
+    page_title: 'PBIS Open Day 2026',
+    page_location: window.location.href,
+    send_page_view: true
+  });
+
+  // ── PBIS Custom Event Helper ──────────────────────────────────
+  function pbisTrack(eventName, params) {
+    if(typeof gtag !== 'function') return;
+    gtag('event', eventName, Object.assign({
+      event_category: 'PBIS Open Day',
+      non_interaction: false
+    }, params || {}));
+  }
+
+  // ── SCROLL DEPTH tracking (25%, 50%, 75%, 100%) ──────────────
+  var _scrollMilestones = {25:false, 50:false, 75:false, 100:false};
+  window.addEventListener('scroll', function() {
+    var scrollPct = Math.round(
+      (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100
+    );
+    [25, 50, 75, 100].forEach(function(m) {
+      if(!_scrollMilestones[m] && scrollPct >= m) {
+        _scrollMilestones[m] = true;
+        pbisTrack('scroll_depth', { event_label: m + '%', value: m });
+      }
+    });
+  }, { passive: true });
+
+  // ── TIME ON PAGE tracking (30s, 60s, 3min, 5min) ─────────────
+  var _timeMarks = [30, 60, 180, 300];
+  _timeMarks.forEach(function(sec) {
+    setTimeout(function() {
+      pbisTrack('time_on_page', { event_label: sec + 's', value: sec });
+    }, sec * 1000);
+  });
+
+  // ── SECTION VISIBILITY tracking via IntersectionObserver ──────
+  window.addEventListener('load', function() {
+    var sections = [
+      { id: 'hero',       label: 'Hero Section' },
+      { id: 'gallery',    label: 'Previous Open Days Gallery' },
+      { id: 'virtual-tour', label: '360 Virtual Tour' },
+      { id: 'openday',    label: 'Open Day Details' },
+      { id: 'promotions', label: 'Exclusive Promotions' },
+      { id: 'register',   label: 'Registration Form' },
+      { id: 'contact',    label: 'Contact Section' },
+    ];
+
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if(entry.isIntersecting) {
+          var label = entry.target.getAttribute('data-ga-label');
+          pbisTrack('section_viewed', {
+            event_label: label,
+            event_category: 'Page Sections'
+          });
+          observer.unobserve(entry.target); // track once per session
+        }
+      });
+    }, { threshold: 0.3 });
+
+    sections.forEach(function(sec) {
+      var el = document.getElementById(sec.id) ||
+               document.querySelector('[data-section="' + sec.id + '"]') ||
+               document.querySelector('section.' + sec.id + '-section') ||
+               document.querySelector('#' + sec.id + '-section');
+      if(el) {
+        el.setAttribute('data-ga-label', sec.label);
+        observer.observe(el);
+      }
+    });
+  });
+</script>
 </head>
 <body>
 
@@ -1580,7 +1660,7 @@ body, html { top:0!important; }
 
 <!-- NAVIGATION -->
 <nav>
-  <a href="https://www.pbis.edu.la" class="nav-logo">
+  <a href="https://www.pbis.edu.la" onclick="pbisTrack('nav_click',{event_label:'PBIS Website',event_category:'Navigation'})" class="nav-logo">
     <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="PBIS Logo" style="height:50px;width:auto;object-fit:contain;filter:drop-shadow(0 2px 8px rgba(201,168,76,0.3));">
     <div class="nav-school-name">
       Panyathip British International School
@@ -1588,7 +1668,7 @@ body, html { top:0!important; }
     </div>
   </a>
   <div class="nav-links">
-    <a href="https://www.pbis.edu.la" class="nav-home">
+    <a href="https://www.pbis.edu.la" onclick="pbisTrack('nav_click',{event_label:'PBIS Website',event_category:'Navigation'})" class="nav-home">
       <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       PBIS Website
     </a>
@@ -1669,7 +1749,7 @@ body, html { top:0!important; }
 </section>
 
 <!-- ── PREVIOUS OPEN DAY GALLERY ── -->
-<section class="gallery-section" id="gallery">
+<section class="gallery-section" id="gallery-section" data-section="gallery" id="gallery">
   <div class="container">
     <div class="section-eyebrow fade-up">Our Community</div>
     <div class="gold-divider fade-up"></div>
@@ -1772,7 +1852,7 @@ body, html { top:0!important; }
 </section>
 
 <!-- ── OPEN DAY DETAILS ── -->
-<section class="openday-section" id="openday">
+<section class="openday-section" id="openday-section" data-section="openday" id="openday">
   <div class="container">
     <div class="section-eyebrow fade-up">Upcoming Event</div>
     <div class="gold-divider fade-up"></div>
@@ -1991,7 +2071,7 @@ body, html { top:0!important; }
 </section>
 
 <!-- ── CONTACT ── -->
-<section class="contact-section" id="contact">
+<section class="contact-section" id="contact-section" data-section="contact" id="contact">
   <div class="container">
     <div class="contact-intro fade-up">
       <div class="section-eyebrow">Get in Touch</div>
@@ -2090,7 +2170,7 @@ body, html { top:0!important; }
       <a href="#tour">Early Years</a>
       <a href="#tour">Primary School</a>
       <a href="#tour">Secondary School</a>
-      <a href="https://www.pbis.edu.la" target="_blank">PBIS Website</a>
+      <a href="https://www.pbis.edu.la" onclick="pbisTrack('nav_click',{event_label:'PBIS Website',event_category:'Navigation'})" target="_blank">PBIS Website</a>
     </div>
     <div class="footer-col">
       <h5>Connect</h5>
@@ -2654,6 +2734,7 @@ async function sha256(message) {
 }
 
 function openLoginModal() {
+  pbisTrack('admin_dashboard_click', {event_label:'Admin Dashboard Button',event_category:'Admin'});
   // Check if session still valid
   if(_sessionExpiry && Date.now() < _sessionExpiry) {
     enterDashboard(); return;
@@ -3968,7 +4049,7 @@ function saveManualLead() {
   try {
     applyLocalMutation(leads => leads.push(lead));
     sendToSheets(lead);
-    showToast('✅ Lead saved & synced to Google Sheets!');
+    pbisTrack('form_submit_success',{event_label:'Open Day Registration',event_category:'Registration Form',value:1}); showToast('✅ Lead saved & synced to Google Sheets!');
     closeModal();
     loadData();
   } catch(err) {
