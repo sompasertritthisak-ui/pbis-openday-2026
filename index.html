@@ -1338,26 +1338,15 @@ body.translated-ltr, body.translated-rtl { margin-top: 0 !important; top: 0 !imp
 
 
 
-/* ── TRANSLATE SELECT ── */
-.translate-wrap { position:relative; display:inline-flex; align-items:center; }
-.translate-select-styled {
-  -webkit-appearance:none; appearance:none;
-  background-color:rgba(255,255,255,0.08);
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23c9a84c'/%3E%3C/svg%3E");
-  background-repeat:no-repeat; background-position:right 10px center;
-  border:1px solid rgba(201,168,76,0.45); border-radius:2px;
-  padding:8px 30px 8px 32px; color:#fff;
-  font-family:sans-serif; font-size:12px; font-weight:600;
-  letter-spacing:0.04em; cursor:pointer; transition:all 0.2s; outline:none;
-}
-.translate-select-styled option { background:#0d2e18; color:#fff; font-size:13px; }
-.translate-select-styled:hover, .translate-select-styled:focus {
-  background-color:rgba(201,168,76,0.15); border-color:rgba(201,168,76,0.75); color:#e8c96e;
-}
-.translate-globe-icon {
-  position:absolute; left:9px; top:50%; transform:translateY(-50%);
-  pointer-events:none; display:flex; align-items:center;
-}
+
+
+
+/* ── TRANSLATE ── */
+.translate-wrap{position:relative;display:inline-flex;align-items:center}
+.translate-select-styled{-webkit-appearance:none;appearance:none;background-color:rgba(255,255,255,.08);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23c9a84c'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;border:1px solid rgba(201,168,76,.45);border-radius:2px;padding:8px 30px 8px 32px;color:#fff;font-family:sans-serif;font-size:12px;font-weight:600;letter-spacing:.04em;cursor:pointer;transition:all .2s;outline:none}
+.translate-select-styled option{background:#0d2e18;color:#fff}
+.translate-select-styled:hover,.translate-select-styled:focus{background-color:rgba(201,168,76,.15);border-color:rgba(201,168,76,.75);color:#e8c96e}
+.translate-globe-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);pointer-events:none;display:flex;align-items:center}
 
 /* ── ADMIN TOGGLE BUTTON (bottom-right, subtle) ── */
 /* ── ADMIN BUTTON ── */
@@ -1541,7 +1530,7 @@ body.dashboard-active nav              { display: none !important; }
 })();
 </script>
 
-<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
 
 <style>
 /* Hide Google Translate banner */
@@ -1552,18 +1541,29 @@ body, html { top:0!important; }
 .translated-ltr, .translated-rtl { margin-top:0!important; }
 .goog-text-highlight { background:rgba(201,168,76,0.2)!important; box-shadow:none!important; }
 </style>
+
+
+
+<style>
+.goog-te-banner-frame,.goog-te-balloon-frame,#goog-gt-tt,.goog-tooltip,.VIpgJd-ZVi9od-aZ2wEe{display:none!important}
+body,html{top:0!important}
+.translated-ltr,.translated-rtl{margin-top:0!important}
+.goog-text-highlight{background:rgba(201,168,76,.2)!important;box-shadow:none!important}
+</style>
+
+
+
 <script>
-function googleTranslateElementInit() {
+function googleTranslateElementInit(){
   new google.translate.TranslateElement({
-    pageLanguage: 'en',
-    includedLanguages: 'lo,zh-CN,zh-TW,th,vi,ko,ja,fr,de,es,pt,it,ru,ar,hi,bn,id,ms,my,km,tl,nl,sv,pl,tr,uk,fa,ur,ne,sw',
-    layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-    autoDisplay: false
-  }, 'google_translate_element');
+    pageLanguage:'en',
+    includedLanguages:'lo,zh-CN,zh-TW,th,vi,ko,ja,fr,de,es,pt,it,ru,ar,hi,bn,id,ms,my,km,tl,nl,sv,pl,tr,uk,fa,ur,ne,sw',
+    layout:google.translate.TranslateElement.InlineLayout.SIMPLE,
+    autoDisplay:false
+  },'google_translate_element');
 }
 </script>
-
-
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </head>
 <body>
 <div id="google_translate_element" style="display:none;position:absolute;top:-9999px;"></div>
@@ -1591,45 +1591,7 @@ function googleTranslateElementInit() {
     </a>
     <a href="#tour">Virtual Tour</a>
     <a href="#openday">Open Day</a>
-    <a href="#contact">Contact</a><div class="translate-wrap">
-      <span class="translate-globe-icon">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
-      </span>
-      <select class="translate-select-styled" id="pbis-lang-select" onchange="pbisTranslate(this.value)">
-        <option value="">🌐 Translate</option>
-        <option value="en">🇬🇧 English</option>
-        <option value="lo">🇱🇦 ລາວ (Lao)</option>
-        <option value="zh-CN">🇨🇳 中文简体 (Chinese Simplified)</option>
-        <option value="zh-TW">🇹🇼 中文繁體 (Chinese Traditional)</option>
-        <option value="th">🇹🇭 ภาษาไทย (Thai)</option>
-        <option value="vi">🇻🇳 Tiếng Việt (Vietnamese)</option>
-        <option value="ko">🇰🇷 한국어 (Korean)</option>
-        <option value="ja">🇯🇵 日本語 (Japanese)</option>
-        <option value="fr">🇫🇷 Français (French)</option>
-        <option value="de">🇩🇪 Deutsch (German)</option>
-        <option value="es">🇪🇸 Español (Spanish)</option>
-        <option value="pt">🇵🇹 Português (Portuguese)</option>
-        <option value="it">🇮🇹 Italiano (Italian)</option>
-        <option value="ru">🇷🇺 Русский (Russian)</option>
-        <option value="ar">🇸🇦 العربية (Arabic)</option>
-        <option value="hi">🇮🇳 हिन्दी (Hindi)</option>
-        <option value="bn">🇧🇩 বাংলা (Bengali)</option>
-        <option value="id">🇮🇩 Bahasa Indonesia</option>
-        <option value="ms">🇲🇾 Bahasa Melayu</option>
-        <option value="my">🇲🇲 မြန်မာ (Burmese)</option>
-        <option value="km">🇰🇭 ភាសាខ្មែរ (Khmer)</option>
-        <option value="tl">🇵🇭 Filipino</option>
-        <option value="nl">🇳🇱 Nederlands (Dutch)</option>
-        <option value="sv">🇸🇪 Svenska (Swedish)</option>
-        <option value="pl">🇵🇱 Polski (Polish)</option>
-        <option value="tr">🇹🇷 Türkçe (Turkish)</option>
-        <option value="uk">🇺🇦 Українська (Ukrainian)</option>
-        <option value="fa">🇮🇷 فارسی (Persian)</option>
-        <option value="ur">🇵🇰 اردو (Urdu)</option>
-        <option value="ne">🇳🇵 नेपाली (Nepali)</option>
-        <option value="sw">🇰🇪 Kiswahili (Swahili)</option>
-      </select>
-    </div>
+    <a href="#contact">Contact</a><div class="translate-wrap"><span class="translate-globe-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></span><select class="translate-select-styled" id="pbis-lang-select" onchange="pbisTranslate(this.value)"><option value="">🌐 Translate</option><option value="en">🇬🇧 English</option><option value="lo">🇱🇦 ລາວ (Lao)</option><option value="zh-CN">🇨🇳 中文简体</option><option value="zh-TW">🇹🇼 中文繁體</option><option value="th">🇹🇭 ภาษาไทย (Thai)</option><option value="vi">🇻🇳 Tiếng Việt</option><option value="ko">🇰🇷 한국어 (Korean)</option><option value="ja">🇯🇵 日本語 (Japanese)</option><option value="fr">🇫🇷 Français</option><option value="de">🇩🇪 Deutsch</option><option value="es">🇪🇸 Español</option><option value="pt">🇵🇹 Português</option><option value="it">🇮🇹 Italiano</option><option value="ru">🇷🇺 Русский</option><option value="ar">🇸🇦 العربية</option><option value="hi">🇮🇳 हिन्दी</option><option value="bn">🇧🇩 বাংলা</option><option value="id">🇮🇩 Indonesia</option><option value="ms">🇲🇾 Melayu</option><option value="my">🇲🇲 မြန်မာ</option><option value="km">🇰🇭 ភាសាខ្មែរ</option><option value="tl">🇵🇭 Filipino</option><option value="nl">🇳🇱 Nederlands</option><option value="sv">🇸🇪 Svenska</option><option value="pl">🇵🇱 Polski</option><option value="tr">🇹🇷 Türkçe</option><option value="uk">🇺🇦 Українська</option><option value="fa">🇮🇷 فارسی</option><option value="ur">🇵🇰 اردو</option><option value="ne">🇳🇵 नेपाली</option><option value="sw">🇰🇪 Kiswahili</option></select></div>
     <a href="#register" class="nav-cta">Register Now</a>
   </div>
 </nav>
@@ -5101,6 +5063,24 @@ setInterval(function(){
   document.body.style.top='0';
 },500);
 
+
+function pbisTranslate(l){
+  if(!l)return;
+  if(l==='en'){window.location.reload();return;}
+  var n=0;
+  function go(){
+    if(typeof window.doGTranslate==='function'){window.doGTranslate('en|'+l);return;}
+    var c=document.querySelector('select.goog-te-combo');
+    if(c){c.value=l;c.dispatchEvent(new Event('change'));}
+    else if(n++<60){setTimeout(go,300);}
+  }
+  go();
+}
+setInterval(function(){
+  var f=document.querySelector('.goog-te-banner-frame');
+  if(f)f.style.display='none';
+  document.body.style.top='0';
+},500);
 </script>
 </body>
 </html>
