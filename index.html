@@ -1373,22 +1373,18 @@ body{font-family:'DM Sans',sans-serif;background:#f4f1ea;color:var(--text);min-h
   align-items: center;
 }
 
-/* Minimize Google Translate banner — keep it compliant but unobtrusive */
-.goog-te-banner-frame.skiptranslate {
-  display: none !important;
-}
-body {
-  top: 0px !important;
-}
-/* Keep the translate toolbar but make it tiny and unobtrusive */
-#goog-gt-tt { display: none !important; }
+/* Hide Google Translate banner completely */
+.goog-te-banner-frame,
+.goog-te-banner-frame.skiptranslate,
+.skiptranslate { display: none !important; visibility: hidden !important; }
+body { top: 0 !important; }
+#goog-gt-tt,
+.goog-tooltip,
+.goog-tooltip:hover,
 .goog-te-balloon-frame { display: none !important; }
-.goog-tooltip { display: none !important; }
-.goog-tooltip:hover { display: none !important; }
-.goog-text-highlight {
-  background-color: transparent !important;
-  box-shadow: none !important;
-}
+.goog-text-highlight { background: rgba(201,168,76,0.15) !important; box-shadow: none !important; }
+/* Prevent body shift when banner is "shown" */
+.translated-ltr, .translated-rtl { margin-top: 0 !important; }
 
 /* ── ADMIN TOGGLE BUTTON (bottom-right, subtle) ── */
 /* ── ADMIN BUTTON ── */
@@ -1574,8 +1570,20 @@ body.dashboard-active nav              { display: none !important; }
 
 <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
+<script>
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+    pageLanguage: 'en',
+    includedLanguages: 'lo,zh-CN,zh-TW,th,vi,ko,ja,fr,de,es,pt,it,ru,ar,hi,bn,id,ms,my,km,tl,nl,sv,pl,tr,uk,fa,ur,ne,sw',
+    layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+    autoDisplay: false
+  }, 'google_translate_element');
+}
+</script>
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </head>
 <body>
+<div id="google_translate_element" style="display:none;"></div>
 
 <!-- ════════════════════════════════════════
      LANDING PAGE VIEW
@@ -5096,18 +5104,35 @@ document.addEventListener('change', function(e) {
 
 
 
-// ── TRANSLATE: Google proxy redirect (works on all static hosts)
+// ── TRANSLATE: In-page via Google Translate widget (no redirect, no banner)
 function pbisTranslate(langCode) {
   if(!langCode || langCode === '') return;
-  var pageUrl = window.location.href;
-  if(pageUrl.indexOf('translate.google') !== -1 || pageUrl.indexOf('translate.goog') !== -1) {
-    var uMatch = pageUrl.match(/[?&]u=([^&]+)/);
-    if(uMatch) pageUrl = decodeURIComponent(uMatch[1]);
+
+  if(langCode === 'en') {
+    // Restore to English
+    var sel = document.querySelector('select.goog-te-combo');
+    if(sel) {
+      sel.value = '';
+      sel.dispatchEvent(new Event('change'));
+    } else {
+      window.location.reload();
+    }
+    return;
   }
-  var cleanUrl = pageUrl.split('#')[0];
-  if(langCode === 'en') { window.location.href = cleanUrl; return; }
-  window.location.href = 'https://translate.google.com/translate?sl=en&tl='
-    + encodeURIComponent(langCode) + '&hl=en&u=' + encodeURIComponent(cleanUrl);
+
+  // Wait for Google widget to load then trigger it
+  var attempts = 0;
+  function trigger() {
+    var sel = document.querySelector('select.goog-te-combo');
+    if(sel) {
+      sel.value = langCode;
+      sel.dispatchEvent(new Event('change'));
+    } else if(attempts < 30) {
+      attempts++;
+      setTimeout(trigger, 300);
+    }
+  }
+  trigger();
 }
 </script>
 
