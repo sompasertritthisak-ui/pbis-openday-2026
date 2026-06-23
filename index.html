@@ -1562,7 +1562,8 @@ function googleTranslateElementInit() {
   }, 'google_translate_element');
 }
 </script>
-<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit">
+
+<script>
 // ── TRANSLATE: Google Widget — correct trigger method
 function pbisTranslate(langCode) {
   if (!langCode || langCode === '') return;
@@ -1616,7 +1617,6 @@ setInterval(function() {
   document.body.style.top = '0';
   document.documentElement.style.top = '0';
 }, 500);
-
 </script>
 </head>
 <body>
