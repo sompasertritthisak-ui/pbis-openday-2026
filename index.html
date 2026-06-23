@@ -1374,8 +1374,18 @@ body{font-family:'DM Sans',sans-serif;background:#f4f1ea;color:var(--text);min-h
 }
 
 /* Hide Google Translate banner */
-.goog-te-banner-frame { display: none !important; }
+/* ── Hide ALL Google Translate UI chrome ── */
+.goog-te-banner-frame,
+.goog-te-banner-frame.skiptranslate,
+iframe.goog-te-banner-frame { display: none !important; }
+.skiptranslate > iframe { display: none !important; }
 body { top: 0 !important; }
+#goog-gt-tt, .goog-tooltip, .goog-tooltip:hover { display: none !important; }
+.goog-te-balloon-frame { display: none !important; }
+.goog-text-highlight { background: rgba(201,168,76,0.2) !important; box-shadow: none !important; }
+.VIpgJd-ZVi9od-aZ2wEe-wOHMyf { display: none !important; } /* new Google banner class */
+.VIpgJd-ZVi9od-aZ2wEe { display: none !important; }
+body.translated-ltr, body.translated-rtl { margin-top: 0 !important; top: 0 !important; }
 
 /* ── ADMIN TOGGLE BUTTON (bottom-right, subtle) ── */
 /* ── ADMIN BUTTON ── */
@@ -1561,8 +1571,21 @@ body.dashboard-active nav              { display: none !important; }
 
 <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
+<script>
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+    pageLanguage: 'en',
+    includedLanguages: 'lo,zh-CN,zh-TW,th,vi,ko,ja,fr,de,es,pt,it,ru,ar,hi,bn,id,ms,my,km,tl,nl,sv,pl,tr,uk,fa,ur,ne,sw',
+    layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+    autoDisplay: false,
+    multilanguagePage: false
+  }, 'google_translate_element');
+}
+</script>
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" defer></script>
 </head>
 <body>
+<div id="google_translate_element" style="display:none;position:absolute;top:-9999px;"></div>
 
 <!-- ════════════════════════════════════════
      LANDING PAGE VIEW
@@ -5083,55 +5106,36 @@ document.addEventListener('change', function(e) {
 
 
 
-// ── TRANSLATE: Google proxy redirect
+// ── TRANSLATE: Google Translate JS Widget (in-page, no redirect)
 function pbisTranslate(langCode) {
   if(!langCode || langCode === '') return;
 
-  // Get the real page URL — handle both normal and translate.goog proxy URLs
-  var rawUrl = window.location.href;
-  var baseUrl = rawUrl;
-
-  // If we're on translate.goog proxy, extract the original URL from the u= param
-  if(rawUrl.indexOf('translate.goog') !== -1 || rawUrl.indexOf('translate.google') !== -1) {
-    var uParam = rawUrl.match(/[?&]u=([^&]+)/);
-    if(uParam) {
-      baseUrl = decodeURIComponent(uParam[1]);
-    } else {
-      // Reconstruct from translate.goog domain format:
-      // sompasertritthisak--ui-github-io.translate.goog → sompasertritthisak-ui.github.io
-      var googHost = window.location.hostname; // e.g. sompasertritthisak--ui-github-io.translate.goog
-      var origHost = googHost
-        .replace('.translate.goog', '')
-        .replace(/--/g, '-')          // double dash back to single
-        .replace(/-([a-z]{2,3})$/,'.$1') // last segment becomes TLD
-        .replace(/-/g, '.');          // remaining dashes become dots
-      baseUrl = window.location.protocol.replace('//','') + '//' + origHost + window.location.pathname;
-    }
-  }
-
-  // Strip hash and query string added by translate
-  baseUrl = baseUrl.split('?')[0].split('#')[0];
-
   if(langCode === 'en') {
-    window.location.href = _pbisOriginalUrl || baseUrl;
+    // Reset to English by reloading page
+    var url = window.location.href;
+    // Remove any Google translate params
+    url = url.split('?')[0].replace(/#.*/, '');
+    window.location.href = url;
     return;
   }
 
-  // Use stored original URL if available
-  var finalUrl = _pbisOriginalUrl || baseUrl;
-  window.location.href = 'https://translate.google.com/translate?sl=en&tl='
-    + langCode + '&hl=en&u=' + encodeURIComponent(finalUrl);
-}
-
-// Store original URL on first load (before any proxy wrapping)
-var _pbisOriginalUrl = (function() {
-  var url = window.location.href;
-  if(url.indexOf('translate.goog') === -1 && url.indexOf('translate.google') === -1) {
-    try { sessionStorage.setItem('pbis_orig_url', url); } catch(e) {}
-    return url;
+  // Find Google's hidden select and trigger it
+  var attempts = 0;
+  function doTranslate() {
+    var combo = document.querySelector('select.goog-te-combo');
+    if(combo) {
+      combo.value = langCode;
+      combo.dispatchEvent(new Event('change', { bubbles: true }));
+      // Update our select to show current language
+      var ourSel = document.getElementById('pbis-lang-select');
+      if(ourSel) ourSel.value = langCode;
+    } else if(attempts < 40) {
+      attempts++;
+      setTimeout(doTranslate, 250);
+    }
   }
-  try { return sessionStorage.getItem('pbis_orig_url') || url; } catch(e) { return url; }
-})();
+  doTranslate();
+}
 </script>
 
 </body>
