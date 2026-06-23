@@ -1323,69 +1323,32 @@ body{font-family:'DM Sans',sans-serif;background:#f4f1ea;color:var(--text);min-h
 
 
 
-/* ═══════════════════════════════════════
-   TRANSLATE BUTTON
-═══════════════════════════════════════ */
-.translate-wrap {
-  display: inline-flex;
-  align-items: center;
-  position: relative;
-  z-index: 9999;
-}
-.translate-select-styled {
-  appearance: none;
-  -webkit-appearance: none;
-  background-color: rgba(255,255,255,0.08);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23c9a84c'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  border: 1px solid rgba(201,168,76,0.45);
-  border-radius: 2px;
-  padding: 8px 30px 8px 32px;
-  color: #ffffff;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  transition: all 0.2s;
-  min-width: 90px;
-  outline: none;
-}
-.translate-select-styled option {
-  background: #0d2e18;
-  color: #ffffff;
-  font-size: 13px;
-}
-.translate-select-styled:hover,
-.translate-select-styled:focus {
-  background-color: rgba(201,168,76,0.15);
-  border-color: rgba(201,168,76,0.75);
-  color: #e8c96e;
-}
-.translate-globe-icon {
-  position: absolute;
-  left: 9px;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
-  display: flex;
-  align-items: center;
-}
 
-/* Hide Google Translate banner */
-/* ── Hide ALL Google Translate UI chrome ── */
-.goog-te-banner-frame,
-.goog-te-banner-frame.skiptranslate,
-iframe.goog-te-banner-frame { display: none !important; }
-.skiptranslate > iframe { display: none !important; }
-body { top: 0 !important; }
-#goog-gt-tt, .goog-tooltip, .goog-tooltip:hover { display: none !important; }
-.goog-te-balloon-frame { display: none !important; }
-.goog-text-highlight { background: rgba(201,168,76,0.2) !important; box-shadow: none !important; }
 .VIpgJd-ZVi9od-aZ2wEe-wOHMyf { display: none !important; } /* new Google banner class */
 .VIpgJd-ZVi9od-aZ2wEe { display: none !important; }
 body.translated-ltr, body.translated-rtl { margin-top: 0 !important; top: 0 !important; }
+
+
+/* ── TRANSLATE BUTTON ── */
+.translate-wrap { position:relative; display:inline-flex; align-items:center; }
+.translate-select-styled {
+  -webkit-appearance:none; appearance:none;
+  background-color:rgba(255,255,255,0.08);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23c9a84c'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 10px center;
+  border:1px solid rgba(201,168,76,0.45); border-radius:2px;
+  padding:8px 30px 8px 32px; color:#fff;
+  font-family:'DM Sans',sans-serif; font-size:12px; font-weight:600;
+  letter-spacing:0.04em; cursor:pointer; transition:all 0.2s; outline:none;
+}
+.translate-select-styled option { background:#0d2e18; color:#fff; font-size:13px; }
+.translate-select-styled:hover, .translate-select-styled:focus {
+  background-color:rgba(201,168,76,0.15); border-color:rgba(201,168,76,0.75); color:#e8c96e;
+}
+.translate-globe-icon {
+  position:absolute; left:9px; top:50%; transform:translateY(-50%);
+  pointer-events:none; display:flex; align-items:center;
+}
 
 /* ── ADMIN TOGGLE BUTTON (bottom-right, subtle) ── */
 /* ── ADMIN BUTTON ── */
@@ -1585,7 +1548,6 @@ function googleTranslateElementInit() {
 <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" defer></script>
 </head>
 <body>
-<div id="google_translate_element" style="display:none;position:absolute;top:-9999px;"></div>
 
 <!-- ════════════════════════════════════════
      LANDING PAGE VIEW
@@ -1610,14 +1572,9 @@ function googleTranslateElementInit() {
     </a>
     <a href="#tour">Virtual Tour</a>
     <a href="#openday">Open Day</a>
-    <a href="#contact">Contact</a>
-    <div class="translate-wrap">
+    <a href="#contact">Contact</a><div class="translate-wrap">
       <span class="translate-globe-icon">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/>
-          <line x1="2" y1="12" x2="22" y2="12"/>
-          <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
-        </svg>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
       </span>
       <select class="translate-select-styled" id="pbis-lang-select" onchange="pbisTranslate(this.value)">
         <option value="">🌐 Translate</option>
@@ -1626,15 +1583,15 @@ function googleTranslateElementInit() {
         <option value="zh-CN">🇨🇳 中文简体 (Chinese Simplified)</option>
         <option value="zh-TW">🇹🇼 中文繁體 (Chinese Traditional)</option>
         <option value="th">🇹🇭 ภาษาไทย (Thai)</option>
-        <option value="vi">🇻🇳 Tiếng Việt</option>
+        <option value="vi">🇻🇳 Tiếng Việt (Vietnamese)</option>
         <option value="ko">🇰🇷 한국어 (Korean)</option>
         <option value="ja">🇯🇵 日本語 (Japanese)</option>
-        <option value="fr">🇫🇷 Français</option>
-        <option value="de">🇩🇪 Deutsch</option>
-        <option value="es">🇪🇸 Español</option>
-        <option value="pt">🇵🇹 Português</option>
-        <option value="it">🇮🇹 Italiano</option>
-        <option value="ru">🇷🇺 Русский</option>
+        <option value="fr">🇫🇷 Français (French)</option>
+        <option value="de">🇩🇪 Deutsch (German)</option>
+        <option value="es">🇪🇸 Español (Spanish)</option>
+        <option value="pt">🇵🇹 Português (Portuguese)</option>
+        <option value="it">🇮🇹 Italiano (Italian)</option>
+        <option value="ru">🇷🇺 Русский (Russian)</option>
         <option value="ar">🇸🇦 العربية (Arabic)</option>
         <option value="hi">🇮🇳 हिन्दी (Hindi)</option>
         <option value="bn">🇧🇩 বাংলা (Bengali)</option>
@@ -1643,15 +1600,15 @@ function googleTranslateElementInit() {
         <option value="my">🇲🇲 မြန်မာ (Burmese)</option>
         <option value="km">🇰🇭 ភាសាខ្មែរ (Khmer)</option>
         <option value="tl">🇵🇭 Filipino</option>
-        <option value="nl">🇳🇱 Nederlands</option>
-        <option value="sv">🇸🇪 Svenska</option>
-        <option value="pl">🇵🇱 Polski</option>
-        <option value="tr">🇹🇷 Türkçe</option>
-        <option value="uk">🇺🇦 Українська</option>
+        <option value="nl">🇳🇱 Nederlands (Dutch)</option>
+        <option value="sv">🇸🇪 Svenska (Swedish)</option>
+        <option value="pl">🇵🇱 Polski (Polish)</option>
+        <option value="tr">🇹🇷 Türkçe (Turkish)</option>
+        <option value="uk">🇺🇦 Українська (Ukrainian)</option>
         <option value="fa">🇮🇷 فارسی (Persian)</option>
         <option value="ur">🇵🇰 اردو (Urdu)</option>
         <option value="ne">🇳🇵 नेपाली (Nepali)</option>
-        <option value="sw">🇰🇪 Kiswahili</option>
+        <option value="sw">🇰🇪 Kiswahili (Swahili)</option>
       </select>
     </div>
     <a href="#register" class="nav-cta">Register Now</a>
@@ -5106,36 +5063,37 @@ document.addEventListener('change', function(e) {
 
 
 
-// ── TRANSLATE: Google Translate JS Widget (in-page, no redirect)
+
+
+// ══════════════════════════════════════════════════════════════════
+// TRANSLATE — uses translate.goog domain (most reliable method)
+// ══════════════════════════════════════════════════════════════════
 function pbisTranslate(langCode) {
   if(!langCode || langCode === '') return;
 
+  // Build the translate.goog URL
+  // Format: https://DOMAIN.translate.goog/PATH?_x_tr_sl=en&_x_tr_tl=LANG&_x_tr_hl=en
+  var domain = 'sompasertritthisak-ui.github.io';
+  var path   = window.location.pathname || '/';
+
+  // If already on translate.goog, get original path
+  if(window.location.hostname.indexOf('translate.goog') !== -1) {
+    path = window.location.pathname;
+  }
+
   if(langCode === 'en') {
-    // Reset to English by reloading page
-    var url = window.location.href;
-    // Remove any Google translate params
-    url = url.split('?')[0].replace(/#.*/, '');
-    window.location.href = url;
+    window.location.href = 'https://' + domain + path;
     return;
   }
 
-  // Find Google's hidden select and trigger it
-  var attempts = 0;
-  function doTranslate() {
-    var combo = document.querySelector('select.goog-te-combo');
-    if(combo) {
-      combo.value = langCode;
-      combo.dispatchEvent(new Event('change', { bubbles: true }));
-      // Update our select to show current language
-      var ourSel = document.getElementById('pbis-lang-select');
-      if(ourSel) ourSel.value = langCode;
-    } else if(attempts < 40) {
-      attempts++;
-      setTimeout(doTranslate, 250);
-    }
-  }
-  doTranslate();
+  // Convert domain to translate.goog format: dots → hyphens, then add .translate.goog
+  var tDomain = domain.replace(/\./g, '-') + '.translate.goog';
+  var tUrl    = 'https://' + tDomain + path
+    + '?_x_tr_sl=en&_x_tr_tl=' + langCode + '&_x_tr_hl=en&_x_tr_pto=wapp';
+
+  window.location.href = tUrl;
 }
+
 </script>
 
 </body>
