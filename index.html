@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6RZR4R5R6R"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-6RZR4R5R6R');
+</script>
 <meta charset="UTF-8">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
@@ -1568,86 +1576,6 @@ body, html { top:0!important; }
 
 
 
-<!-- ── Google Analytics 4 ── -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-6RZR4R5R6R"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-6RZR4R5R6R', {
-    page_title: 'PBIS Open Day 2026',
-    page_location: window.location.href,
-    send_page_view: true
-  });
-
-  // ── PBIS Custom Event Helper ──────────────────────────────────
-  function pbisTrack(eventName, params) {
-    if(typeof gtag !== 'function') return;
-    gtag('event', eventName, Object.assign({
-      event_category: 'PBIS Open Day',
-      non_interaction: false
-    }, params || {}));
-  }
-
-  // ── SCROLL DEPTH tracking (25%, 50%, 75%, 100%) ──────────────
-  var _scrollMilestones = {25:false, 50:false, 75:false, 100:false};
-  window.addEventListener('scroll', function() {
-    var scrollPct = Math.round(
-      (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100
-    );
-    [25, 50, 75, 100].forEach(function(m) {
-      if(!_scrollMilestones[m] && scrollPct >= m) {
-        _scrollMilestones[m] = true;
-        pbisTrack('scroll_depth', { event_label: m + '%', value: m });
-      }
-    });
-  }, { passive: true });
-
-  // ── TIME ON PAGE tracking (30s, 60s, 3min, 5min) ─────────────
-  var _timeMarks = [30, 60, 180, 300];
-  _timeMarks.forEach(function(sec) {
-    setTimeout(function() {
-      pbisTrack('time_on_page', { event_label: sec + 's', value: sec });
-    }, sec * 1000);
-  });
-
-  // ── SECTION VISIBILITY tracking via IntersectionObserver ──────
-  window.addEventListener('load', function() {
-    var sections = [
-      { id: 'hero',       label: 'Hero Section' },
-      { id: 'gallery',    label: 'Previous Open Days Gallery' },
-      { id: 'virtual-tour', label: '360 Virtual Tour' },
-      { id: 'openday',    label: 'Open Day Details' },
-      { id: 'promotions', label: 'Exclusive Promotions' },
-      { id: 'register',   label: 'Registration Form' },
-      { id: 'contact',    label: 'Contact Section' },
-    ];
-
-    var observer = new IntersectionObserver(function(entries) {
-      entries.forEach(function(entry) {
-        if(entry.isIntersecting) {
-          var label = entry.target.getAttribute('data-ga-label');
-          pbisTrack('section_viewed', {
-            event_label: label,
-            event_category: 'Page Sections'
-          });
-          observer.unobserve(entry.target); // track once per session
-        }
-      });
-    }, { threshold: 0.3 });
-
-    sections.forEach(function(sec) {
-      var el = document.getElementById(sec.id) ||
-               document.querySelector('[data-section="' + sec.id + '"]') ||
-               document.querySelector('section.' + sec.id + '-section') ||
-               document.querySelector('#' + sec.id + '-section');
-      if(el) {
-        el.setAttribute('data-ga-label', sec.label);
-        observer.observe(el);
-      }
-    });
-  });
-</script>
 </head>
 <body>
 
@@ -5174,6 +5102,112 @@ setInterval(function(){
   if(f)f.style.display='none';
   document.body.style.top='0';
 },500);
+
+// ══════════════════════════════════════════════════════════════════
+// GOOGLE ANALYTICS 4 — Custom Event Tracking
+// Measurement ID: G-6RZR4R5R6R
+// ══════════════════════════════════════════════════════════════════
+
+function pbisTrack(eventName, params) {
+  if (typeof gtag !== 'function') return;
+  gtag('event', eventName, Object.assign({
+    event_category: 'PBIS Open Day',
+    non_interaction: false
+  }, params || {}));
+}
+
+// ── Scroll Depth (25 / 50 / 75 / 100%) ──────────────────────────
+var _scrollDone = {};
+window.addEventListener('scroll', function() {
+  var pct = Math.round(
+    (window.scrollY / Math.max(1, document.body.scrollHeight - window.innerHeight)) * 100
+  );
+  [25, 50, 75, 100].forEach(function(m) {
+    if (!_scrollDone[m] && pct >= m) {
+      _scrollDone[m] = true;
+      pbisTrack('scroll_depth', { event_label: m + '%', value: m });
+    }
+  });
+}, { passive: true });
+
+// ── Time on Page (30s / 60s / 3min / 5min) ───────────────────────
+[30, 60, 180, 300].forEach(function(sec) {
+  setTimeout(function() {
+    pbisTrack('time_on_page', { event_label: sec + 's', value: sec });
+  }, sec * 1000);
+});
+
+// ── Section Visibility (IntersectionObserver) ─────────────────────
+window.addEventListener('load', function() {
+  if (!('IntersectionObserver' in window)) return;
+
+  var sectionMap = {
+    'hero-section':        'Hero Section',
+    'gallery-section':     'Previous Open Days Gallery',
+    'virtual-tour-section':'360 Virtual Tour',
+    'openday-section':     'Open Day Details',
+    'promotions-section':  'Exclusive Promotions',
+    'register-section':    'Registration Form',
+    'contact-section':     'Contact Section'
+  };
+
+  var obs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var label = entry.target.getAttribute('data-ga-label') || entry.target.id;
+        pbisTrack('section_viewed', {
+          event_label: label,
+          event_category: 'Page Sections'
+        });
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.3 });
+
+  Object.keys(sectionMap).forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) {
+      el.setAttribute('data-ga-label', sectionMap[id]);
+      obs.observe(el);
+    }
+  });
+
+  // Track virtual tour tab clicks
+  document.querySelectorAll('.campus-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      pbisTrack('virtual_tour_tab_click', {
+        event_label: this.textContent.trim(),
+        event_category: 'Virtual Tour'
+      });
+    });
+  });
+
+  // Track Google Maps view buttons
+  document.querySelectorAll('a[href*="maps.google"], a[href*="goo.gl/maps"]').forEach(function(a) {
+    a.addEventListener('click', function() {
+      pbisTrack('map_directions_click', {
+        event_label: this.closest('[data-campus]') ? this.closest('[data-campus]').getAttribute('data-campus') : 'Campus Map',
+        event_category: 'Campus Maps'
+      });
+    });
+  });
+
+  // Track registration form field engagement
+  var regForm = document.getElementById('register-section') || document.querySelector('.form-card');
+  if (regForm) {
+    var formEngaged = false;
+    regForm.addEventListener('focusin', function() {
+      if (!formEngaged) {
+        formEngaged = true;
+        pbisTrack('form_engagement', {
+          event_label: 'Started Filling Form',
+          event_category: 'Registration Form'
+        });
+      }
+    });
+  }
+});
+
 </script>
 </body>
 </html>
