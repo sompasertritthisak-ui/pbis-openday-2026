@@ -1563,37 +1563,59 @@ function googleTranslateElementInit() {
 }
 </script>
 <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit">
-// ── TRANSLATE: Google Widget (works on custom domain openday.pbis.edu.la)
+// ── TRANSLATE: Google Widget — correct trigger method
 function pbisTranslate(langCode) {
   if (!langCode || langCode === '') return;
 
   if (langCode === 'en') {
-    var c = document.querySelector('select.goog-te-combo');
-    if (c) { c.value = ''; c.dispatchEvent(new Event('change')); }
-    else { window.location.reload(); }
+    // Reload page to restore English
+    window.location.href = window.location.href.split('?')[0].split('#')[0];
     return;
   }
 
   var tries = 0;
   function fire() {
-    var c = document.querySelector('select.goog-te-combo');
-    if (c) {
-      c.value = langCode;
-      c.dispatchEvent(new Event('change'));
-    } else if (tries < 50) {
+    var combo = document.querySelector('select.goog-te-combo');
+    if (combo) {
+      // Method 1: Direct value + multiple events
+      combo.value = langCode;
+      ['input','change','click'].forEach(function(evtName) {
+        var evt = document.createEvent('HTMLEvents');
+        evt.initEvent(evtName, true, true);
+        combo.dispatchEvent(evt);
+      });
+
+      // Method 2: Use Google's own doGTranslate function if available
+      if (typeof window.doGTranslate === 'function') {
+        window.doGTranslate('en|' + langCode);
+      }
+
+      // Method 3: Simulate a real mouse click on the option
+      var options = combo.options;
+      for (var i = 0; i < options.length; i++) {
+        if (options[i].value === langCode) {
+          combo.selectedIndex = i;
+          break;
+        }
+      }
+      var changeEvt = new Event('change', { bubbles: true, cancelable: true });
+      combo.dispatchEvent(changeEvt);
+
+    } else if (tries < 60) {
       tries++;
-      setTimeout(fire, 200);
+      setTimeout(fire, 300);
     }
   }
   fire();
 }
 
-// Keep banner hidden
-(function hideBanner() {
-  var b = document.querySelector('.goog-te-banner-frame');
-  if (b) { b.style.display = 'none'; document.body.style.top = '0'; }
-  setTimeout(hideBanner, 1000);
-})();
+// Keep banner hidden via interval
+setInterval(function() {
+  var b = document.querySelector('.goog-te-banner-frame, .skiptranslate iframe');
+  if (b) { b.style.display = 'none'; }
+  document.body.style.top = '0';
+  document.documentElement.style.top = '0';
+}, 500);
 
 </script>
 </head>
