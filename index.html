@@ -1373,18 +1373,9 @@ body{font-family:'DM Sans',sans-serif;background:#f4f1ea;color:var(--text);min-h
   align-items: center;
 }
 
-/* Hide Google Translate banner completely */
-.goog-te-banner-frame,
-.goog-te-banner-frame.skiptranslate,
-.skiptranslate { display: none !important; visibility: hidden !important; }
+/* Hide Google Translate banner */
+.goog-te-banner-frame { display: none !important; }
 body { top: 0 !important; }
-#goog-gt-tt,
-.goog-tooltip,
-.goog-tooltip:hover,
-.goog-te-balloon-frame { display: none !important; }
-.goog-text-highlight { background: rgba(201,168,76,0.15) !important; box-shadow: none !important; }
-/* Prevent body shift when banner is "shown" */
-.translated-ltr, .translated-rtl { margin-top: 0 !important; }
 
 /* ── ADMIN TOGGLE BUTTON (bottom-right, subtle) ── */
 /* ── ADMIN BUTTON ── */
@@ -1570,20 +1561,8 @@ body.dashboard-active nav              { display: none !important; }
 
 <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
-<script>
-function googleTranslateElementInit() {
-  new google.translate.TranslateElement({
-    pageLanguage: 'en',
-    includedLanguages: 'lo,zh-CN,zh-TW,th,vi,ko,ja,fr,de,es,pt,it,ru,ar,hi,bn,id,ms,my,km,tl,nl,sv,pl,tr,uk,fa,ur,ne,sw',
-    layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-    autoDisplay: false
-  }, 'google_translate_element');
-}
-</script>
-<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </head>
 <body>
-<div id="google_translate_element" style="display:none;"></div>
 
 <!-- ════════════════════════════════════════
      LANDING PAGE VIEW
@@ -5104,35 +5083,23 @@ document.addEventListener('change', function(e) {
 
 
 
-// ── TRANSLATE: In-page via Google Translate widget (no redirect, no banner)
+// ── TRANSLATE: Google proxy redirect
+var PBIS_SITE_URL = 'https://sompasertritthisak-ui.github.io';
+
 function pbisTranslate(langCode) {
   if(!langCode || langCode === '') return;
 
+  // Always use the canonical site URL — avoids Google proxy URL confusion
+  var baseUrl = PBIS_SITE_URL;
+
   if(langCode === 'en') {
-    // Restore to English
-    var sel = document.querySelector('select.goog-te-combo');
-    if(sel) {
-      sel.value = '';
-      sel.dispatchEvent(new Event('change'));
-    } else {
-      window.location.reload();
-    }
+    window.location.href = baseUrl;
     return;
   }
 
-  // Wait for Google widget to load then trigger it
-  var attempts = 0;
-  function trigger() {
-    var sel = document.querySelector('select.goog-te-combo');
-    if(sel) {
-      sel.value = langCode;
-      sel.dispatchEvent(new Event('change'));
-    } else if(attempts < 30) {
-      attempts++;
-      setTimeout(trigger, 300);
-    }
-  }
-  trigger();
+  // Build Google Translate proxy URL with hardcoded base
+  window.location.href = 'https://translate.google.com/translate?sl=en&tl='
+    + langCode + '&hl=en&u=' + encodeURIComponent(baseUrl);
 }
 </script>
 
