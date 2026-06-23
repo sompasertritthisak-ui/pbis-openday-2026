@@ -1329,7 +1329,10 @@ body{font-family:'DM Sans',sans-serif;background:#f4f1ea;color:var(--text);min-h
 body.translated-ltr, body.translated-rtl { margin-top: 0 !important; top: 0 !important; }
 
 
-/* ── TRANSLATE BUTTON ── */
+
+
+
+/* ── TRANSLATE SELECT ── */
 .translate-wrap { position:relative; display:inline-flex; align-items:center; }
 .translate-select-styled {
   -webkit-appearance:none; appearance:none;
@@ -1338,7 +1341,7 @@ body.translated-ltr, body.translated-rtl { margin-top: 0 !important; top: 0 !imp
   background-repeat:no-repeat; background-position:right 10px center;
   border:1px solid rgba(201,168,76,0.45); border-radius:2px;
   padding:8px 30px 8px 32px; color:#fff;
-  font-family:'DM Sans',sans-serif; font-size:12px; font-weight:600;
+  font-family:sans-serif; font-size:12px; font-weight:600;
   letter-spacing:0.04em; cursor:pointer; transition:all 0.2s; outline:none;
 }
 .translate-select-styled option { background:#0d2e18; color:#fff; font-size:13px; }
@@ -1546,8 +1549,32 @@ function googleTranslateElementInit() {
 }
 </script>
 <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" defer></script>
+<style>
+/* Hide Google Translate banner - all known class names */
+.goog-te-banner-frame, iframe.goog-te-banner-frame,
+.skiptranslate iframe, #goog-gt-tt,
+.goog-tooltip, .goog-te-balloon-frame,
+.VIpgJd-ZVi9od-aZ2wEe-wOHMyf,
+.VIpgJd-ZVi9od-aZ2wEe,
+div[id="goog-gt-tt"],
+div.goog-te-balloon-frame { display:none!important; }
+body, html { top:0!important; }
+.translated-ltr, .translated-rtl { margin-top:0!important; }
+</style>
+<script>
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+    pageLanguage: 'en',
+    includedLanguages: 'lo,zh-CN,zh-TW,th,vi,ko,ja,fr,de,es,pt,it,ru,ar,hi,bn,id,ms,my,km,tl,nl,sv,pl,tr,uk,fa,ur,ne,sw',
+    layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+    autoDisplay: false
+  }, 'google_translate_element');
+}
+</script>
+<script src="https://translate.googleapis.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </head>
 <body>
+<div id="google_translate_element" style="display:none!important;visibility:hidden;position:absolute;top:-9999px;left:-9999px;"></div>
 
 <!-- ════════════════════════════════════════
      LANDING PAGE VIEW
@@ -5066,33 +5093,80 @@ document.addEventListener('change', function(e) {
 
 
 // ══════════════════════════════════════════════════════════════════
-// TRANSLATE — uses translate.goog domain (most reliable method)
+
+
+// ══════════════════════════════════════════════════════════════════
+// TRANSLATE — Google Translate JS Widget
 // ══════════════════════════════════════════════════════════════════
 function pbisTranslate(langCode) {
-  if(!langCode || langCode === '') return;
+  if (!langCode || langCode === '') return;
 
-  // Build the translate.goog URL
-  // Format: https://DOMAIN.translate.goog/PATH?_x_tr_sl=en&_x_tr_tl=LANG&_x_tr_hl=en
-  var domain = 'sompasertritthisak-ui.github.io';
-  var path   = window.location.pathname || '/';
-
-  // If already on translate.goog, get original path
-  if(window.location.hostname.indexOf('translate.goog') !== -1) {
-    path = window.location.pathname;
-  }
-
-  if(langCode === 'en') {
-    window.location.href = 'https://' + domain + path;
+  // Reset to English
+  if (langCode === 'en') {
+    var combo = document.querySelector('select.goog-te-combo');
+    if (combo) {
+      combo.value = '';
+      combo.dispatchEvent(new Event('change'));
+    } else {
+      window.location.reload();
+    }
     return;
   }
 
-  // Convert domain to translate.goog format: dots → hyphens, then add .translate.goog
-  var tDomain = domain.replace(/\./g, '-') + '.translate.goog';
-  var tUrl    = 'https://' + tDomain + path
-    + '?_x_tr_sl=en&_x_tr_tl=' + langCode + '&_x_tr_hl=en&_x_tr_pto=wapp';
+  // Try to find and trigger the Google Translate combo box
+  var n = 0;
+  function trySet() {
+    var combo = document.querySelector('select.goog-te-combo');
+    if (combo) {
+      combo.value = langCode;
+      combo.dispatchEvent(new Event('change'));
+      // Force a second trigger after short delay (helps some languages)
+      setTimeout(function() {
+        var c2 = document.querySelector('select.goog-te-combo');
+        if (c2 && c2.value !== langCode) {
+          c2.value = langCode;
+          c2.dispatchEvent(new Event('change'));
+        }
+      }, 500);
+    } else if (n < 50) {
+      n++;
+      setTimeout(trySet, 200);
+    }
+  }
+  trySet();
 
-  window.location.href = tUrl;
+  // Also try via the Google Translate API directly
+  setTimeout(function() {
+    try {
+      var el = document.getElementById('google_translate_element');
+      if (el) {
+        var s = el.querySelector('select');
+        if (s) { s.value = langCode; s.dispatchEvent(new Event('change')); }
+      }
+    } catch(e) {}
+  }, 1000);
 }
+
+// On load: hide Google banner aggressively
+window.addEventListener('load', function() {
+  // Hide banner immediately and keep hiding it
+  function hideBanner() {
+    var banner = document.querySelector('.goog-te-banner-frame');
+    if (banner) banner.style.display = 'none';
+    document.body.style.top = '0';
+    document.body.style.marginTop = '0';
+    // Hide all skiptranslate iframes
+    document.querySelectorAll('.skiptranslate').forEach(function(el) {
+      if (el.tagName === 'IFRAME') el.style.display = 'none';
+    });
+  }
+  hideBanner();
+  setInterval(hideBanner, 500);
+
+  // MutationObserver to catch banner if it appears later
+  var obs = new MutationObserver(hideBanner);
+  obs.observe(document.body, { childList: true, subtree: true });
+});
 
 </script>
 
