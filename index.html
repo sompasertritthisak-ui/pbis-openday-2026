@@ -5097,52 +5097,63 @@ document.addEventListener('change', function(e) {
 </body>
 </html
 // ══════════════════════════════════════════════════════════════════
-// TRANSLATE — fires Google Translate via its own select element
+// TRANSLATE — reliable method using cookie + reload
 // ══════════════════════════════════════════════════════════════════
 function pbisTranslate(langCode) {
+  var hostname = location.hostname;
+  var isLocal  = hostname === 'localhost' || hostname === '127.0.0.1';
+
   if(langCode === 'en') {
-    // Reset to English
-    var googSelect = document.querySelector('select.goog-te-combo');
-    if(googSelect) {
-      googSelect.value = '';
-      googSelect.dispatchEvent(new Event('change'));
-    }
-    // Clear cookie and reload for a clean reset
-    document.cookie = 'googtrans=/en/en; path=/';
-    document.cookie = 'googtrans=/en/en; path=/; domain=.' + location.hostname;
+    // Clear cookies and reload to restore English
+    var expiry = 'expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
+    document.cookie = 'googtrans=; ' + expiry;
+    if(!isLocal) document.cookie = 'googtrans=; ' + expiry + '; domain=.' + hostname;
     window.location.reload();
     return;
   }
 
-  // Set the Google cookie
-  document.cookie = 'googtrans=/en/' + langCode + '; path=/';
-  document.cookie = 'googtrans=/en/' + langCode + '; path=/; domain=.' + location.hostname;
+  // Set googtrans cookie — Google reads this on page load
+  var cookieVal = '/en/' + langCode;
+  document.cookie = 'googtrans=' + cookieVal + '; path=/';
+  if(!isLocal) document.cookie = 'googtrans=' + cookieVal + '; path=/; domain=.' + hostname;
 
-  // Try to trigger the hidden Google select directly
-  var attempt = 0;
-  function tryTrigger() {
-    var googSelect = document.querySelector('select.goog-te-combo');
-    if(googSelect) {
-      googSelect.value = langCode;
-      googSelect.dispatchEvent(new Event('change'));
-    } else if(attempt < 20) {
-      attempt++;
-      setTimeout(tryTrigger, 250);
-    } else {
-      // Fallback: reload with cookie set (Google picks it up on load)
-      window.location.reload();
-    }
+  // Try the hidden select first (instant, no reload)
+  var googSelect = document.querySelector('select.goog-te-combo');
+  if(googSelect) {
+    googSelect.value = langCode;
+    ['change','input'].forEach(function(ev) {
+      googSelect.dispatchEvent(new Event(ev, { bubbles: true }));
+    });
+    return;
   }
-  tryTrigger();
+
+  // Fallback: reload — Google Translate reads the cookie and auto-translates
+  window.location.reload();
 }
 
-// Restore select to match current translation on page load
+// On load: sync our select to active translation + retry hidden select
 window.addEventListener('load', function() {
-  var match = document.cookie.match(/googtrans=\/en\/([^;]+)/);
-  if(match && match[1] && match[1] !== 'en') {
+  // Restore our select display to match cookie
+  var cookieMatch = document.cookie.match(/googtrans=\/en\/([^;]+)/);
+  if(cookieMatch && cookieMatch[1]) {
     var sel = document.getElementById('pbis-lang-select');
-    if(sel) sel.value = match[1];
+    if(sel) sel.value = cookieMatch[1];
   }
+
+  // If Google widget loaded, try to auto-trigger
+  var autoAttempts = 0;
+  function autoTrigger() {
+    var googSelect = document.querySelector('select.goog-te-combo');
+    var match = document.cookie.match(/googtrans=\/en\/([^;]+)/);
+    if(googSelect && match && match[1] && match[1] !== 'en') {
+      googSelect.value = match[1];
+      googSelect.dispatchEvent(new Event('change', { bubbles: true }));
+    } else if(!googSelect && autoAttempts < 15) {
+      autoAttempts++;
+      setTimeout(autoTrigger, 400);
+    }
+  }
+  autoTrigger();
 });
 
 >
