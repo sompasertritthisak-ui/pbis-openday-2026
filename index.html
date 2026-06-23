@@ -5080,8 +5080,27 @@ document.addEventListener('change', function(e) {
   }
 });
 
+// ── TRANSLATE
+function pbisTranslate(l) {
+  if (!l) return;
+  if (l === 'en') { window.location.reload(); return; }
+  var n = 0;
+  function go() {
+    if (typeof window.doGTranslate === 'function') {
+      window.doGTranslate('en|' + l); return;
+    }
+    var c = document.querySelector('select.goog-te-combo');
+    if (c) { c.value = l; c.dispatchEvent(new Event('change')); }
+    else if (n++ < 60) { setTimeout(go, 300); }
+  }
+  go();
+}
+setInterval(function(){
+  var f=document.querySelector('.goog-te-banner-frame');
+  if(f)f.style.display='none';
+  document.body.style.top='0';
+},500);
 
-
-
-
-// ══════════════════════════════════════════════════════════════════
+</script>
+</body>
+</html>
