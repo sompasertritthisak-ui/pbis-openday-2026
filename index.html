@@ -5078,62 +5078,21 @@ document.addEventListener('change', function(e) {
 });
 
 
-</script>
 
-</body>
-</html
-// ══════════════════════════════════════════════════════════════════
-// TRANSLATE — reliable method using cookie + reload
-// ══════════════════════════════════════════════════════════════════
+// ── TRANSLATE: Google proxy redirect (works on all static hosts)
 function pbisTranslate(langCode) {
   if(!langCode || langCode === '') return;
-
-  // Get base page URL, strip any existing Google proxy wrapping
   var pageUrl = window.location.href;
   if(pageUrl.indexOf('translate.google') !== -1 || pageUrl.indexOf('translate.goog') !== -1) {
     var uMatch = pageUrl.match(/[?&]u=([^&]+)/);
     if(uMatch) pageUrl = decodeURIComponent(uMatch[1]);
   }
   var cleanUrl = pageUrl.split('#')[0];
-
-  if(langCode === 'en') {
-    window.location.href = cleanUrl;
-    return;
-  }
-
-  // Google Translate proxy — works 100% reliably on GitHub Pages
+  if(langCode === 'en') { window.location.href = cleanUrl; return; }
   window.location.href = 'https://translate.google.com/translate?sl=en&tl='
-    + encodeURIComponent(langCode)
-    + '&hl=en&u='
-    + encodeURIComponent(cleanUrl);
-};
-
-
-// ══════════════════════════════════════════════════════════════════
-// TRANSLATE — Google Translate proxy URL method
-// Works reliably on GitHub Pages and all static hosts
-// ══════════════════════════════════════════════════════════════════
-function pbisTranslate(langCode) {
-  if(!langCode || langCode === '') return;
-
-  var currentUrl = window.location.href;
-
-  // If already on Google Translate proxy, extract original URL
-  var originalUrl = currentUrl;
-  if(currentUrl.indexOf('translate.google') !== -1 || currentUrl.indexOf('translate.goog') !== -1) {
-    var uParam = currentUrl.match(/[?&]u=([^&]+)/);
-    if(uParam) originalUrl = decodeURIComponent(uParam[1]);
-  }
-
-  if(langCode === 'en') {
-    // Go back to original untranslated page
-    window.location.href = originalUrl;
-    return;
-  }
-
-  // Redirect to Google Translate proxy — translates the whole page
-  var translateUrl = 'https://translate.google.com/translate?sl=en&tl=' + langCode + '&u=' + encodeURIComponent(originalUrl);
-  window.location.href = translateUrl;
+    + encodeURIComponent(langCode) + '&hl=en&u=' + encodeURIComponent(cleanUrl);
 }
+</script>
 
->
+</body>
+</html>
