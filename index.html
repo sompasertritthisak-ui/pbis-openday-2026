@@ -5084,23 +5084,54 @@ document.addEventListener('change', function(e) {
 
 
 // ── TRANSLATE: Google proxy redirect
-var PBIS_SITE_URL = 'https://sompasertritthisak-ui.github.io';
-
 function pbisTranslate(langCode) {
   if(!langCode || langCode === '') return;
 
-  // Always use the canonical site URL — avoids Google proxy URL confusion
-  var baseUrl = PBIS_SITE_URL;
+  // Get the real page URL — handle both normal and translate.goog proxy URLs
+  var rawUrl = window.location.href;
+  var baseUrl = rawUrl;
+
+  // If we're on translate.goog proxy, extract the original URL from the u= param
+  if(rawUrl.indexOf('translate.goog') !== -1 || rawUrl.indexOf('translate.google') !== -1) {
+    var uParam = rawUrl.match(/[?&]u=([^&]+)/);
+    if(uParam) {
+      baseUrl = decodeURIComponent(uParam[1]);
+    } else {
+      // Reconstruct from translate.goog domain format:
+      // sompasertritthisak--ui-github-io.translate.goog → sompasertritthisak-ui.github.io
+      var googHost = window.location.hostname; // e.g. sompasertritthisak--ui-github-io.translate.goog
+      var origHost = googHost
+        .replace('.translate.goog', '')
+        .replace(/--/g, '-')          // double dash back to single
+        .replace(/-([a-z]{2,3})$/,'.$1') // last segment becomes TLD
+        .replace(/-/g, '.');          // remaining dashes become dots
+      baseUrl = window.location.protocol.replace('//','') + '//' + origHost + window.location.pathname;
+    }
+  }
+
+  // Strip hash and query string added by translate
+  baseUrl = baseUrl.split('?')[0].split('#')[0];
 
   if(langCode === 'en') {
-    window.location.href = baseUrl;
+    window.location.href = _pbisOriginalUrl || baseUrl;
     return;
   }
 
-  // Build Google Translate proxy URL with hardcoded base
+  // Use stored original URL if available
+  var finalUrl = _pbisOriginalUrl || baseUrl;
   window.location.href = 'https://translate.google.com/translate?sl=en&tl='
-    + langCode + '&hl=en&u=' + encodeURIComponent(baseUrl);
+    + langCode + '&hl=en&u=' + encodeURIComponent(finalUrl);
 }
+
+// Store original URL on first load (before any proxy wrapping)
+var _pbisOriginalUrl = (function() {
+  var url = window.location.href;
+  if(url.indexOf('translate.goog') === -1 && url.indexOf('translate.google') === -1) {
+    try { sessionStorage.setItem('pbis_orig_url', url); } catch(e) {}
+    return url;
+  }
+  try { return sessionStorage.getItem('pbis_orig_url') || url; } catch(e) { return url; }
+})();
 </script>
 
 </body>
