@@ -5086,61 +5086,27 @@ document.addEventListener('change', function(e) {
 // TRANSLATE — reliable method using cookie + reload
 // ══════════════════════════════════════════════════════════════════
 function pbisTranslate(langCode) {
-  var hostname = location.hostname;
-  var isLocal  = hostname === 'localhost' || hostname === '127.0.0.1';
+  if(!langCode || langCode === '') return;
+
+  // Get base page URL, strip any existing Google proxy wrapping
+  var pageUrl = window.location.href;
+  if(pageUrl.indexOf('translate.google') !== -1 || pageUrl.indexOf('translate.goog') !== -1) {
+    var uMatch = pageUrl.match(/[?&]u=([^&]+)/);
+    if(uMatch) pageUrl = decodeURIComponent(uMatch[1]);
+  }
+  var cleanUrl = pageUrl.split('#')[0];
 
   if(langCode === 'en') {
-    // Clear cookies and reload to restore English
-    var expiry = 'expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
-    document.cookie = 'googtrans=; ' + expiry;
-    if(!isLocal) document.cookie = 'googtrans=; ' + expiry + '; domain=.' + hostname;
-    window.location.reload();
+    window.location.href = cleanUrl;
     return;
   }
 
-  // Set googtrans cookie — Google reads this on page load
-  var cookieVal = '/en/' + langCode;
-  document.cookie = 'googtrans=' + cookieVal + '; path=/';
-  if(!isLocal) document.cookie = 'googtrans=' + cookieVal + '; path=/; domain=.' + hostname;
-
-  // Try the hidden select first (instant, no reload)
-  var googSelect = document.querySelector('select.goog-te-combo');
-  if(googSelect) {
-    googSelect.value = langCode;
-    ['change','input'].forEach(function(ev) {
-      googSelect.dispatchEvent(new Event(ev, { bubbles: true }));
-    });
-    return;
-  }
-
-  // Fallback: reload — Google Translate reads the cookie and auto-translates
-  window.location.reload();
-}
-
-// On load: sync our select to active translation + retry hidden select
-window.addEventListener('load', function() {
-  // Restore our select display to match cookie
-  var cookieMatch = document.cookie.match(/googtrans=\/en\/([^;]+)/);
-  if(cookieMatch && cookieMatch[1]) {
-    var sel = document.getElementById('pbis-lang-select');
-    if(sel) sel.value = cookieMatch[1];
-  }
-
-  // If Google widget loaded, try to auto-trigger
-  var autoAttempts = 0;
-  function autoTrigger() {
-    var googSelect = document.querySelector('select.goog-te-combo');
-    var match = document.cookie.match(/googtrans=\/en\/([^;]+)/);
-    if(googSelect && match && match[1] && match[1] !== 'en') {
-      googSelect.value = match[1];
-      googSelect.dispatchEvent(new Event('change', { bubbles: true }));
-    } else if(!googSelect && autoAttempts < 15) {
-      autoAttempts++;
-      setTimeout(autoTrigger, 400);
-    }
-  }
-  autoTrigger();
-});
+  // Google Translate proxy — works 100% reliably on GitHub Pages
+  window.location.href = 'https://translate.google.com/translate?sl=en&tl='
+    + encodeURIComponent(langCode)
+    + '&hl=en&u='
+    + encodeURIComponent(cleanUrl);
+};
 
 
 // ══════════════════════════════════════════════════════════════════
