@@ -1322,63 +1322,56 @@ body{font-family:'DM Sans',sans-serif;background:#f4f1ea;color:var(--text);min-h
 
 
 
+
 /* ═══════════════════════════════════════
-   TRANSLATE BUTTON — styled select
+   TRANSLATE BUTTON
 ═══════════════════════════════════════ */
 .translate-wrap {
   display: inline-flex;
   align-items: center;
   position: relative;
+  z-index: 9999;
 }
 .translate-select-styled {
   appearance: none;
   -webkit-appearance: none;
-  background: rgba(255,255,255,0.08) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23c9a84c'/%3E%3C/svg%3E") no-repeat right 10px center;
-  border: 1px solid rgba(201,168,76,0.4);
+  background-color: rgba(255,255,255,0.08);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23c9a84c'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  border: 1px solid rgba(201,168,76,0.45);
   border-radius: 2px;
   padding: 8px 30px 8px 32px;
-  color: var(--white, #fff);
+  color: #ffffff;
   font-family: 'DM Sans', sans-serif;
   font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   cursor: pointer;
   transition: all 0.2s;
-  min-width: 80px;
-  text-transform: uppercase;
+  min-width: 90px;
   outline: none;
-  background-color: rgba(255,255,255,0.08);
 }
 .translate-select-styled option {
   background: #0d2e18;
-  color: white;
+  color: #ffffff;
   font-size: 13px;
-  padding: 6px;
 }
-.translate-select-styled:hover {
-  background-color: rgba(201,168,76,0.15);
-  border-color: rgba(201,168,76,0.7);
-  color: #e8c96e;
-}
+.translate-select-styled:hover,
 .translate-select-styled:focus {
-  border-color: rgba(201,168,76,0.7);
-  background-color: rgba(201,168,76,0.1);
+  background-color: rgba(201,168,76,0.15);
+  border-color: rgba(201,168,76,0.75);
+  color: #e8c96e;
 }
 .translate-globe-icon {
   position: absolute;
-  left: 10px;
+  left: 9px;
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
-  opacity: 0.8;
+  display: flex;
+  align-items: center;
 }
-
-/* Hide Google's default UI chrome */
-.goog-te-banner-frame { display: none !important; }
-.goog-te-menu-frame  { box-shadow: 0 4px 24px rgba(0,0,0,0.4) !important; border-radius: 8px !important; }
-#goog-gt-tt, .goog-tooltip { display: none !important; }
-.goog-text-highlight { background: rgba(201,168,76,0.2) !important; box-shadow: none !important; }
-body { top: 0 !important; }
 
 /* ── ADMIN TOGGLE BUTTON (bottom-right, subtle) ── */
 /* ── ADMIN BUTTON ── */
@@ -1563,21 +1556,9 @@ body.dashboard-active nav              { display: none !important; }
 </script>
 
 <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-<script>
-function googleTranslateElementInit() {
-  new google.translate.TranslateElement({
-    pageLanguage: 'en',
-    includedLanguages: 'lo,zh-CN,zh-TW,th,vi,ko,ja,fr,de,es,pt,it,ru,ar,hi,bn,id,ms,my,km,tl,nl,sv,no,da,fi,pl,uk,tr,fa,ur,ne,sw,en',
-    layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-    autoDisplay: false,
-    multilanguagePage: false
-  }, 'google_translate_element');
-}
-</script>
-<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
 </head>
 <body>
-<div id="google_translate_element" style="position:absolute;top:-9999px;left:-9999px;visibility:hidden;"></div>
 
 <!-- ════════════════════════════════════════
      LANDING PAGE VIEW
@@ -1604,41 +1585,46 @@ function googleTranslateElementInit() {
     <a href="#openday">Open Day</a>
     <a href="#contact">Contact</a>
     <div class="translate-wrap">
-      <svg class="translate-globe-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
-      </svg>
+      <span class="translate-globe-icon">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="2" y1="12" x2="22" y2="12"/>
+          <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+        </svg>
+      </span>
       <select class="translate-select-styled" id="pbis-lang-select" onchange="pbisTranslate(this.value)">
-        <option value="en"  >EN · English</option>
-        <option value="lo"  >LO · ລາວ</option>
-        <option value="zh-CN">ZH · 中文简体</option>
-        <option value="zh-TW">ZH · 中文繁體</option>
-        <option value="th"  >TH · ภาษาไทย</option>
-        <option value="vi"  >VI · Tiếng Việt</option>
-        <option value="ko"  >KO · 한국어</option>
-        <option value="ja"  >JA · 日本語</option>
-        <option value="fr"  >FR · Français</option>
-        <option value="de"  >DE · Deutsch</option>
-        <option value="es"  >ES · Español</option>
-        <option value="pt"  >PT · Português</option>
-        <option value="it"  >IT · Italiano</option>
-        <option value="ru"  >RU · Русский</option>
-        <option value="ar"  >AR · العربية</option>
-        <option value="hi"  >HI · हिन्दी</option>
-        <option value="bn"  >BN · বাংলা</option>
-        <option value="id"  >ID · Indonesia</option>
-        <option value="ms"  >MS · Melayu</option>
-        <option value="my"  >MY · မြန်မာ</option>
-        <option value="km"  >KM · ខ្មែរ</option>
-        <option value="tl"  >TL · Filipino</option>
-        <option value="nl"  >NL · Nederlands</option>
-        <option value="sv"  >SV · Svenska</option>
-        <option value="pl"  >PL · Polski</option>
-        <option value="tr"  >TR · Türkçe</option>
-        <option value="uk"  >UK · Українська</option>
-        <option value="fa"  >FA · فارسی</option>
-        <option value="ur"  >UR · اردو</option>
-        <option value="ne"  >NE · नेपाली</option>
-        <option value="sw"  >SW · Kiswahili</option>
+        <option value="">🌐 Translate</option>
+        <option value="en">🇬🇧 English</option>
+        <option value="lo">🇱🇦 ລາວ (Lao)</option>
+        <option value="zh-CN">🇨🇳 中文简体</option>
+        <option value="zh-TW">🇹🇼 中文繁體</option>
+        <option value="th">🇹🇭 ภาษาไทย (Thai)</option>
+        <option value="vi">🇻🇳 Tiếng Việt</option>
+        <option value="ko">🇰🇷 한국어 (Korean)</option>
+        <option value="ja">🇯🇵 日本語 (Japanese)</option>
+        <option value="fr">🇫🇷 Français</option>
+        <option value="de">🇩🇪 Deutsch</option>
+        <option value="es">🇪🇸 Español</option>
+        <option value="pt">🇵🇹 Português</option>
+        <option value="it">🇮🇹 Italiano</option>
+        <option value="ru">🇷🇺 Русский</option>
+        <option value="ar">🇸🇦 العربية (Arabic)</option>
+        <option value="hi">🇮🇳 हिन्दी (Hindi)</option>
+        <option value="bn">🇧🇩 বাংলা (Bengali)</option>
+        <option value="id">🇮🇩 Bahasa Indonesia</option>
+        <option value="ms">🇲🇾 Bahasa Melayu</option>
+        <option value="my">🇲🇲 မြန်မာ (Burmese)</option>
+        <option value="km">🇰🇭 ភាសាខ្មែរ (Khmer)</option>
+        <option value="tl">🇵🇭 Filipino</option>
+        <option value="nl">🇳🇱 Nederlands</option>
+        <option value="sv">🇸🇪 Svenska</option>
+        <option value="pl">🇵🇱 Polski</option>
+        <option value="tr">🇹🇷 Türkçe</option>
+        <option value="uk">🇺🇦 Українська</option>
+        <option value="fa">🇮🇷 فارسی (Persian)</option>
+        <option value="ur">🇵🇰 اردو (Urdu)</option>
+        <option value="ne">🇳🇵 नेपाली (Nepali)</option>
+        <option value="sw">🇰🇪 Kiswahili</option>
       </select>
     </div>
     <a href="#register" class="nav-cta">Register Now</a>
@@ -5155,5 +5141,33 @@ window.addEventListener('load', function() {
   }
   autoTrigger();
 });
+
+
+// ══════════════════════════════════════════════════════════════════
+// TRANSLATE — Google Translate proxy URL method
+// Works reliably on GitHub Pages and all static hosts
+// ══════════════════════════════════════════════════════════════════
+function pbisTranslate(langCode) {
+  if(!langCode || langCode === '') return;
+
+  var currentUrl = window.location.href;
+
+  // If already on Google Translate proxy, extract original URL
+  var originalUrl = currentUrl;
+  if(currentUrl.indexOf('translate.google') !== -1 || currentUrl.indexOf('translate.goog') !== -1) {
+    var uParam = currentUrl.match(/[?&]u=([^&]+)/);
+    if(uParam) originalUrl = decodeURIComponent(uParam[1]);
+  }
+
+  if(langCode === 'en') {
+    // Go back to original untranslated page
+    window.location.href = originalUrl;
+    return;
+  }
+
+  // Redirect to Google Translate proxy — translates the whole page
+  var translateUrl = 'https://translate.google.com/translate?sl=en&tl=' + langCode + '&u=' + encodeURIComponent(originalUrl);
+  window.location.href = translateUrl;
+}
 
 >
