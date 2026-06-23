@@ -1332,6 +1332,12 @@ body.translated-ltr, body.translated-rtl { margin-top: 0 !important; top: 0 !imp
 
 
 
+
+
+
+
+
+
 /* ── TRANSLATE SELECT ── */
 .translate-wrap { position:relative; display:inline-flex; align-items:center; }
 .translate-select-styled {
@@ -1537,29 +1543,14 @@ body.dashboard-active nav              { display: none !important; }
 
 <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
-<script>
-function googleTranslateElementInit() {
-  new google.translate.TranslateElement({
-    pageLanguage: 'en',
-    includedLanguages: 'lo,zh-CN,zh-TW,th,vi,ko,ja,fr,de,es,pt,it,ru,ar,hi,bn,id,ms,my,km,tl,nl,sv,pl,tr,uk,fa,ur,ne,sw',
-    layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-    autoDisplay: false,
-    multilanguagePage: false
-  }, 'google_translate_element');
-}
-</script>
-<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" defer></script>
 <style>
-/* Hide Google Translate banner - all known class names */
+/* Hide Google Translate banner */
 .goog-te-banner-frame, iframe.goog-te-banner-frame,
-.skiptranslate iframe, #goog-gt-tt,
-.goog-tooltip, .goog-te-balloon-frame,
-.VIpgJd-ZVi9od-aZ2wEe-wOHMyf,
-.VIpgJd-ZVi9od-aZ2wEe,
-div[id="goog-gt-tt"],
-div.goog-te-balloon-frame { display:none!important; }
+.goog-te-balloon-frame, #goog-gt-tt, .goog-tooltip,
+.VIpgJd-ZVi9od-aZ2wEe-wOHMyf, .VIpgJd-ZVi9od-aZ2wEe { display:none!important; }
 body, html { top:0!important; }
 .translated-ltr, .translated-rtl { margin-top:0!important; }
+.goog-text-highlight { background:rgba(201,168,76,0.2)!important; box-shadow:none!important; }
 </style>
 <script>
 function googleTranslateElementInit() {
@@ -1571,10 +1562,43 @@ function googleTranslateElementInit() {
   }, 'google_translate_element');
 }
 </script>
-<script src="https://translate.googleapis.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit">
+// ── TRANSLATE: Google Widget (works on custom domain openday.pbis.edu.la)
+function pbisTranslate(langCode) {
+  if (!langCode || langCode === '') return;
+
+  if (langCode === 'en') {
+    var c = document.querySelector('select.goog-te-combo');
+    if (c) { c.value = ''; c.dispatchEvent(new Event('change')); }
+    else { window.location.reload(); }
+    return;
+  }
+
+  var tries = 0;
+  function fire() {
+    var c = document.querySelector('select.goog-te-combo');
+    if (c) {
+      c.value = langCode;
+      c.dispatchEvent(new Event('change'));
+    } else if (tries < 50) {
+      tries++;
+      setTimeout(fire, 200);
+    }
+  }
+  fire();
+}
+
+// Keep banner hidden
+(function hideBanner() {
+  var b = document.querySelector('.goog-te-banner-frame');
+  if (b) { b.style.display = 'none'; document.body.style.top = '0'; }
+  setTimeout(hideBanner, 1000);
+})();
+
+</script>
 </head>
 <body>
-<div id="google_translate_element" style="display:none!important;visibility:hidden;position:absolute;top:-9999px;left:-9999px;"></div>
+<div id="google_translate_element" style="display:none;position:absolute;top:-9999px;"></div>
 
 <!-- ════════════════════════════════════════
      LANDING PAGE VIEW
@@ -5093,82 +5117,3 @@ document.addEventListener('change', function(e) {
 
 
 // ══════════════════════════════════════════════════════════════════
-
-
-// ══════════════════════════════════════════════════════════════════
-// TRANSLATE — Google Translate JS Widget
-// ══════════════════════════════════════════════════════════════════
-function pbisTranslate(langCode) {
-  if (!langCode || langCode === '') return;
-
-  // Reset to English
-  if (langCode === 'en') {
-    var combo = document.querySelector('select.goog-te-combo');
-    if (combo) {
-      combo.value = '';
-      combo.dispatchEvent(new Event('change'));
-    } else {
-      window.location.reload();
-    }
-    return;
-  }
-
-  // Try to find and trigger the Google Translate combo box
-  var n = 0;
-  function trySet() {
-    var combo = document.querySelector('select.goog-te-combo');
-    if (combo) {
-      combo.value = langCode;
-      combo.dispatchEvent(new Event('change'));
-      // Force a second trigger after short delay (helps some languages)
-      setTimeout(function() {
-        var c2 = document.querySelector('select.goog-te-combo');
-        if (c2 && c2.value !== langCode) {
-          c2.value = langCode;
-          c2.dispatchEvent(new Event('change'));
-        }
-      }, 500);
-    } else if (n < 50) {
-      n++;
-      setTimeout(trySet, 200);
-    }
-  }
-  trySet();
-
-  // Also try via the Google Translate API directly
-  setTimeout(function() {
-    try {
-      var el = document.getElementById('google_translate_element');
-      if (el) {
-        var s = el.querySelector('select');
-        if (s) { s.value = langCode; s.dispatchEvent(new Event('change')); }
-      }
-    } catch(e) {}
-  }, 1000);
-}
-
-// On load: hide Google banner aggressively
-window.addEventListener('load', function() {
-  // Hide banner immediately and keep hiding it
-  function hideBanner() {
-    var banner = document.querySelector('.goog-te-banner-frame');
-    if (banner) banner.style.display = 'none';
-    document.body.style.top = '0';
-    document.body.style.marginTop = '0';
-    // Hide all skiptranslate iframes
-    document.querySelectorAll('.skiptranslate').forEach(function(el) {
-      if (el.tagName === 'IFRAME') el.style.display = 'none';
-    });
-  }
-  hideBanner();
-  setInterval(hideBanner, 500);
-
-  // MutationObserver to catch banner if it appears later
-  var obs = new MutationObserver(hideBanner);
-  obs.observe(document.body, { childList: true, subtree: true });
-});
-
-</script>
-
-</body>
-</html>
