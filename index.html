@@ -52,17 +52,24 @@ body{font-family:'DM Sans',sans-serif;color:var(--text-body);background:var(--cr
 
 /* ── ANNIVERSARY BAR ── */
 .anniversary-bar{
-  position:fixed;top:0;left:0;right:0;z-index:150;
+  position:fixed;top:0;left:0;right:0;z-index:300;
   background:linear-gradient(90deg,var(--gold) 0%,var(--gold-light) 50%,var(--gold) 100%);
   background-size:200% 100%;
   animation:shimmer 3s infinite linear;
-  text-align:center;padding:6px 12px;
-  font-size:11.5px;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;
+  text-align:center;
+  padding:5px 16px;
+  font-size:11px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;
   color:#0a2818;
-  /* Prevent text wrapping to 2 lines — that shifts nav down and overlaps logo */
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  line-height:1.4;
-  pointer-events:none; /* let clicks pass through to nav buttons beneath */
+  line-height:1.45;
+  /* Allow wrapping on very small screens but keep it tidy */
+  white-space:normal;
+  word-break:keep-all;
+}
+@media(max-width:600px){
+  .anniversary-bar{ font-size:9.5px; padding:5px 10px; letter-spacing:0.06em; }
+}
+@media(max-width:380px){
+  .anniversary-bar{ font-size:8.5px; padding:4px 8px; letter-spacing:0.04em; }
 }
 @keyframes shimmer{0%{background-position:0%}100%{background-position:200%}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
@@ -71,23 +78,28 @@ body{font-family:'DM Sans',sans-serif;color:var(--text-body);background:var(--cr
 @keyframes countPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
 
 /* ── NAV ── */
+/* The bar height is measured by JS and stored as --bar-h.
+   Nav uses margin-top (not top offset) so it always clears the bar cleanly. */
 nav{
   position:fixed;top:0;left:0;right:0;z-index:200;
   display:flex;align-items:center;justify-content:space-between;
   padding:10px 4%;
-  /* padding-top is set dynamically by JS to match exact bar height on every screen size */
-  padding-top:calc(var(--bar-h,28px) + 8px);
+  margin-top:var(--bar-h, 28px);
   background:rgba(10,40,24,0.97);
   backdrop-filter:blur(14px);
   border-bottom:1px solid rgba(201,168,76,0.2);
-  transition:padding-top 0.1s;
+  transition:margin-top 0.1s;
   overflow:visible;
 }
 .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
 .nav-school-name{font-family:'DM Serif Display',serif;color:var(--white);font-size:12.5px;line-height:1.2;white-space:nowrap;overflow:visible;}
 .nav-school-name span{display:block;font-size:10px;color:var(--gold);letter-spacing:0.12em;text-transform:uppercase;font-family:'DM Sans',sans-serif;font-weight:400;}
 .nav-links{display:flex;align-items:center;gap:24px;}
-.nav-links a{color:rgba(255,255,255,0.75);font-size:12px;letter-spacing:0.06em;text-transform:uppercase;text-decoration:none;transition:color 0.2s;white-space:nowrap;}
+.nav-links a{
+  position:relative;z-index:2;
+  color:rgba(255,255,255,0.75);font-size:12px;letter-spacing:0.06em;text-transform:uppercase;
+  text-decoration:none;transition:color 0.2s;white-space:nowrap;
+}
 .nav-links a:hover{color:var(--gold-light);}
 .nav-home{display:inline-flex;align-items:center;gap:6px;color:rgba(255,255,255,0.5)!important;border:1px solid rgba(255,255,255,0.15);border-radius:3px;padding:5px 10px!important;font-size:11px!important;transition:all 0.2s!important;}
 .nav-home:hover{color:var(--gold-light)!important;border-color:rgba(201,168,76,0.4)!important;}
@@ -429,7 +441,6 @@ footer{background:#060f0a;padding:48px 5% 30px;color:rgba(255,255,255,0.4);}
 /* ── SMALL MOBILE (max 430px) ── */
 @media(max-width:430px){
   .hero-h1{ font-size:26px !important; }
-  .anniversary-bar{ font-size:8.5px; padding:5px 6px; letter-spacing:0.05em; }
   .nav-logo-text h1{ font-size:12px; }
   .countdown-blocks{ gap:6px; }
   .cd-block{ min-width:54px; padding:10px 8px; }
@@ -1493,18 +1504,21 @@ body.dashboard-active .wa-float-wrap{display:none!important;}
   text-decoration:none;text-transform:uppercase;
   cursor:pointer;transition:all 0.2s;white-space:nowrap;
   position:relative;
-  z-index:10; /* sits in normal nav flow */
+  z-index:2; /* same as nav links — no higher */
 }
 .gt-btn:hover{background:rgba(201,168,76,0.18);border-color:rgba(201,168,76,0.8);color:#e8c96e;}
 .gt-menu{
-  display:none;position:absolute;top:calc(100% + 6px);left:0;
+  display:none;
+  position:absolute;top:calc(100% + 8px);left:0;
   background:#0d2e18;border:1px solid rgba(201,168,76,0.2);
-  border-radius:8px;min-width:220px;z-index:99999;
+  border-radius:8px;min-width:220px;
+  /* dropdown gets higher z-index only when open — does NOT affect siblings */
+  z-index:9999;
   box-shadow:0 8px 32px rgba(0,0,0,0.4);overflow:hidden;
   max-height:400px;overflow-y:auto;
-  /* dropdown opens leftward so it never covers Register Now / Admin to the right */
+  pointer-events:none; /* non-open state: invisible to clicks */
 }
-.gt-btn.open .gt-menu{display:block;}
+.gt-btn.open .gt-menu{display:block;pointer-events:all;}
 .gt-menu a{
   display:block;padding:9px 16px;color:rgba(255,255,255,0.85);
   font-size:13px;text-decoration:none;font-family:sans-serif;
@@ -5356,7 +5370,7 @@ window.addEventListener('load', function() {
 </div>
 
 <script>
-/* ── BAR HEIGHT SYNC — keeps nav flush below announcement bar on all devices ── */
+/* ── BAR HEIGHT SYNC — nav margin-top always equals bar height so no overlap ── */
 (function syncBarHeight(){
   function update(){
     var bar = document.querySelector('.anniversary-bar');
@@ -5364,12 +5378,11 @@ window.addEventListener('load', function() {
     var h = bar.getBoundingClientRect().height;
     document.documentElement.style.setProperty('--bar-h', h + 'px');
     var nav = document.querySelector('nav');
-    if(nav) nav.style.paddingTop = (h + 8) + 'px';
+    if(nav) nav.style.marginTop = h + 'px';
   }
   update();
   window.addEventListener('resize', update);
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(update);
-  // Extra call after full page load in case images shift layout
   window.addEventListener('load', update);
 })();
 
