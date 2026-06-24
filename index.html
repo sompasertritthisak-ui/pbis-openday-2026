@@ -81,6 +81,7 @@ nav{
   backdrop-filter:blur(14px);
   border-bottom:1px solid rgba(201,168,76,0.2);
   transition:padding-top 0.1s;
+  overflow:visible;
 }
 .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
 .nav-school-name{font-family:'DM Serif Display',serif;color:var(--white);font-size:12.5px;line-height:1.2;white-space:nowrap;overflow:visible;}
@@ -1492,16 +1493,17 @@ body.dashboard-active .wa-float-wrap{display:none!important;}
   text-decoration:none;text-transform:uppercase;
   cursor:pointer;transition:all 0.2s;white-space:nowrap;
   position:relative;
+  z-index:10; /* sits in normal nav flow */
 }
 .gt-btn:hover{background:rgba(201,168,76,0.18);border-color:rgba(201,168,76,0.8);color:#e8c96e;}
 .gt-menu{
-  display:none;position:absolute;top:calc(100% + 6px);right:0;
+  display:none;position:absolute;top:calc(100% + 6px);left:0;
   background:#0d2e18;border:1px solid rgba(201,168,76,0.2);
   border-radius:8px;min-width:220px;z-index:99999;
   box-shadow:0 8px 32px rgba(0,0,0,0.4);overflow:hidden;
   max-height:400px;overflow-y:auto;
+  /* dropdown opens leftward so it never covers Register Now / Admin to the right */
 }
-.gt-btn:focus-within .gt-menu,
 .gt-btn.open .gt-menu{display:block;}
 .gt-menu a{
   display:block;padding:9px 16px;color:rgba(255,255,255,0.85);
@@ -5271,6 +5273,8 @@ window.addEventListener('load', function() {
     });
   }
 });
+
+</script>
 
 <!-- ════════════════════════════════════════
      FLOATING WHATSAPP BUTTON
