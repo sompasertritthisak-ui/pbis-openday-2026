@@ -1705,7 +1705,7 @@ body, html { top:0!important; }
     </a>
     <a href="#tour">Virtual Tour</a>
     <a href="#openday">Open Day</a>
-    <a href="#contact">Contact</a><div class="gt-btn" id="gt-btn" tabindex="0" onclick="this.classList.toggle('open')" onblur="setTimeout(()=>this.classList.remove('open'),200)">
+    <a href="#contact">Contact</a><div class="gt-btn" id="gt-btn" tabindex="0">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
       <span class="gt-label">Translate</span> <span class="gt-chevron">▾</span>
       <div class="gt-menu">
@@ -5179,19 +5179,40 @@ document.addEventListener('change', function(e) {
   }
 });
 
-// ── TRANSLATE
-setInterval(function(){
-  var f=document.querySelector('.goog-te-banner-frame');
-  if(f)f.style.display='none';
-  document.body.style.top='0';
-},500);
+// ── TRANSLATE — mobile-safe dropdown
+(function() {
+  var btn = document.getElementById('gt-btn');
+  if (!btn) return;
 
+  // Toggle open on tap/click of the button itself
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    btn.classList.toggle('open');
+  });
 
-setInterval(function(){
-  var f=document.querySelector('.goog-te-banner-frame');
-  if(f)f.style.display='none';
-  document.body.style.top='0';
-},500);
+  // Tapping a menu link: let the href fire, then close
+  var menu = btn.querySelector('.gt-menu');
+  if (menu) {
+    menu.addEventListener('click', function(e) {
+      // small delay so the link navigates before we close
+      setTimeout(function() { btn.classList.remove('open'); }, 150);
+    });
+  }
+
+  // Tapping anywhere outside closes the menu
+  document.addEventListener('click', function(e) {
+    if (!btn.contains(e.target)) {
+      btn.classList.remove('open');
+    }
+  });
+
+  // touchstart on document for iOS (touch events don't bubble click on non-anchor elements)
+  document.addEventListener('touchstart', function(e) {
+    if (!btn.contains(e.target)) {
+      btn.classList.remove('open');
+    }
+  }, { passive: true });
+})();
 
 // ══════════════════════════════════════════════════════════════════
 // GOOGLE ANALYTICS 4 — Custom Event Tracking
