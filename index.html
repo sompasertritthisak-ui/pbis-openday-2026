@@ -375,9 +375,9 @@ footer{background:#060f0a;padding:48px 5% 30px;color:rgba(255,255,255,0.4);}
 /* ── TABLET (max 960px) ── */
 @media(max-width:960px){
   /* nav top is now driven by JS --bar-h var, no hardcoded top needed */
-  .nav-links{ display:flex !important; gap:8px; }
+  .nav-links{ display:flex !important; gap:6px; }
   .nav-links a:not(.nav-cta):not(.nav-admin-btn){ display:none; }
-  .nav-cta{ padding:8px 12px !important; font-size:11px !important; }
+  .nav-cta{ padding:7px 11px !important; font-size:11px !important; }
   .nav-admin-label{ display:none; }
   .nav-admin-btn{ padding:7px 9px !important; gap:5px; }
   .hero-content{ grid-template-columns:1fr; padding-top:120px; }
@@ -447,7 +447,8 @@ footer{background:#060f0a;padding:48px 5% 30px;color:rgba(255,255,255,0.4);}
   .countdown-blocks{ gap:6px; }
   .cd-block{ min-width:54px; padding:10px 8px; }
   .cd-num{ font-size:24px; }
-  .nav-cta{ padding:6px 9px !important; font-size:10px !important; }
+  .nav-cta{ padding:5px 8px !important; font-size:9.5px !important; letter-spacing:0.03em !important; }
+  .gt-btn { padding: 6px 8px; }
 }
 
 /* ── GALLERY OVERRIDE — 3 cols ── */
@@ -1513,7 +1514,8 @@ body.dashboard-active .wa-float-wrap{display:none!important;}
 /* Mobile: icon-only — hide text label and chevron */
 @media (max-width: 768px) {
   .gt-label, .gt-chevron { display: none; }
-  .gt-btn { padding: 7px 10px; gap: 0; }
+  .gt-btn { padding: 7px 9px; gap: 0; margin-left: 8px; }
+  .nav-cta { padding: 6px 10px !important; font-size: 10px !important; letter-spacing: 0.04em !important; }
 }
 .gt-menu{
   display:none;
