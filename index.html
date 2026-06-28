@@ -1505,17 +1505,21 @@ body.dashboard-active .wa-float-wrap{display:none!important;}
   text-decoration:none;text-transform:uppercase;
   cursor:pointer;transition:all 0.2s;white-space:nowrap;
   position:relative;
-  z-index:2; /* same as nav links — no higher */
+  z-index:2;
+  -webkit-tap-highlight-color: transparent; /* remove grey flash on iOS tap */
+  user-select:none;
 }
 .gt-btn:hover{background:rgba(201,168,76,0.18);border-color:rgba(201,168,76,0.8);color:#e8c96e;}
 
 /* Mobile: icon-only — hide text label and chevron */
 @media (max-width: 768px) {
   .gt-label, .gt-chevron { display: none; }
-  .gt-btn { padding: 7px 9px; gap: 0; margin-left: 6px; }
-  .nav-cta { padding: 7px 12px !important; font-size: 11px !important; letter-spacing: 0.04em !important; white-space: nowrap; }
-  /* Hide long school name on mobile — logo image is sufficient */
-  .nav-school-name { display: none; }
+  .gt-btn { padding: 7px 9px; gap: 0; margin-left: 6px; cursor: pointer; }
+  .nav-cta { padding: 6px 10px !important; font-size: 10px !important; letter-spacing: 0.03em !important; white-space: nowrap; }
+  /* Smaller school name on mobile instead of hiding */
+  .nav-school-name { display: block; font-size: 9.5px !important; white-space: normal; max-width: 110px; line-height: 1.2; }
+  .nav-school-name span { font-size: 8px !important; }
+  .nav-logo { gap: 7px; }
 }
 .gt-menu{
   display:none;
@@ -5183,35 +5187,35 @@ document.addEventListener('change', function(e) {
 (function() {
   var btn = document.getElementById('gt-btn');
   if (!btn) return;
-
-  // Toggle open on tap/click of the button itself
-  btn.addEventListener('click', function(e) {
-    e.stopPropagation();
-    btn.classList.toggle('open');
-  });
-
-  // Tapping a menu link: let the href fire, then close
   var menu = btn.querySelector('.gt-menu');
-  if (menu) {
-    menu.addEventListener('click', function(e) {
-      // small delay so the link navigates before we close
-      setTimeout(function() { btn.classList.remove('open'); }, 150);
-    });
+
+  function openMenu()  { btn.classList.add('open'); }
+  function closeMenu() { btn.classList.remove('open'); }
+  function toggleMenu(e) {
+    // Only toggle if tap/click was on the button itself, not a menu link
+    if (menu && menu.contains(e.target)) return;
+    e.preventDefault();
+    btn.classList.contains('open') ? closeMenu() : openMenu();
   }
 
-  // Tapping anywhere outside closes the menu
-  document.addEventListener('click', function(e) {
-    if (!btn.contains(e.target)) {
-      btn.classList.remove('open');
-    }
+  // Use both touchend + click so it works on iOS, Android and desktop
+  btn.addEventListener('touchend', function(e) {
+    if (menu && menu.contains(e.target)) return; // let links work normally
+    e.preventDefault(); // prevent the ghost click iOS fires 300ms later
+    btn.classList.contains('open') ? closeMenu() : openMenu();
+  });
+  btn.addEventListener('click', function(e) {
+    if (menu && menu.contains(e.target)) return;
+    btn.classList.contains('open') ? closeMenu() : openMenu();
   });
 
-  // touchstart on document for iOS (touch events don't bubble click on non-anchor elements)
+  // Close when tapping outside — works on both touch and mouse
   document.addEventListener('touchstart', function(e) {
-    if (!btn.contains(e.target)) {
-      btn.classList.remove('open');
-    }
+    if (!btn.contains(e.target)) closeMenu();
   }, { passive: true });
+  document.addEventListener('mousedown', function(e) {
+    if (!btn.contains(e.target)) closeMenu();
+  });
 })();
 
 // ══════════════════════════════════════════════════════════════════
