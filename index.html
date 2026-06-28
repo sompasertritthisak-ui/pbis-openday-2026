@@ -1509,6 +1509,12 @@ body.dashboard-active .wa-float-wrap{display:none!important;}
   z-index:2; /* same as nav links — no higher */
 }
 .gt-btn:hover{background:rgba(201,168,76,0.18);border-color:rgba(201,168,76,0.8);color:#e8c96e;}
+
+/* Mobile: icon-only — hide text label and chevron */
+@media (max-width: 768px) {
+  .gt-label, .gt-chevron { display: none; }
+  .gt-btn { padding: 7px 10px; gap: 0; }
+}
 .gt-menu{
   display:none;
   position:absolute;top:calc(100% + 8px);left:0;
@@ -1699,7 +1705,7 @@ body, html { top:0!important; }
     <a href="#openday">Open Day</a>
     <a href="#contact">Contact</a><div class="gt-btn" id="gt-btn" tabindex="0" onclick="this.classList.toggle('open')" onblur="setTimeout(()=>this.classList.remove('open'),200)">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
-      Translate ▾
+      <span class="gt-label">Translate</span> <span class="gt-chevron">▾</span>
       <div class="gt-menu">
         <a href="https://translate.google.com/translate?sl=en&tl=lo&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇱🇦 ລາວ (Lao)</a>
         <a href="https://translate.google.com/translate?sl=en&tl=zh-CN&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/" target="_blank">🇨🇳 中文简体 (Chinese Simplified)</a>
