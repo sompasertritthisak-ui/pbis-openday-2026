@@ -20,7 +20,7 @@
 <meta name="robots" content="index, follow">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PBIS Open Day · 8 July 2026 — PBIS Primary Campus</title>
-<meta name="description" content="PBIS Open Day 2026 — Explore our campuses through 360° virtual tours and register for our exclusive Open Day event.">
+<meta name="description" content="PBIS Open Day 2026 — Explore our campuses and register for our exclusive Open Day event.">
 <meta property="og:title" content="PBIS Open Day · 8 July 2026 — Primary Campus">
 <meta property="og:image" content="https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1200&q=80">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -222,46 +222,6 @@ section{padding:90px 5%;}
 .gallery-caption-sub{color:rgba(255,255,255,0.55);font-size:11px;letter-spacing:0.04em;}
 .gallery-cta{margin-top:40px;text-align:center;}
 
-/* ── VIRTUAL TOUR ── */
-.tour-section{background:var(--navy);}
-.tour-section .section-title{color:var(--white);}
-.tour-section .section-sub{color:rgba(255,255,255,0.55);}
-.tour-section .section-eyebrow{color:var(--gold-light);}
-.campus-tabs{display:flex;gap:0;margin-top:48px;margin-bottom:0;border-radius:8px 8px 0 0;overflow:hidden;border:1px solid rgba(201,168,76,0.2);border-bottom:none;}
-.campus-tab{
-  flex:1;padding:16px 20px;
-  background:rgba(255,255,255,0.04);
-  border:none;cursor:pointer;
-  color:rgba(255,255,255,0.55);font-family:'DM Sans',sans-serif;
-  font-size:13px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;
-  transition:all 0.25s;display:flex;align-items:center;justify-content:center;gap:8px;
-  border-right:1px solid rgba(201,168,76,0.15);
-}
-.campus-tab:last-child{border-right:none;}
-.campus-tab:hover{background:rgba(201,168,76,0.08);color:var(--gold-light);}
-.campus-tab.active{background:linear-gradient(135deg,rgba(201,168,76,0.18),rgba(201,168,76,0.08));color:var(--gold-light);border-bottom:2px solid var(--gold);}
-.campus-tab .tab-badge{font-size:9px;background:var(--gold);color:var(--navy);padding:2px 7px;border-radius:100px;font-weight:700;letter-spacing:0.08em;}
-.tour-panel{display:none;border-radius:0 0 12px 12px;overflow:hidden;border:1px solid rgba(201,168,76,0.2);}
-.tour-panel.active{display:block;animation:fadeSlide 0.35s ease;}
-.tour-panel iframe{width:100%;aspect-ratio:16/9;display:block;border:0;}
-.tour-panel-placeholder{
-  width:100%;aspect-ratio:16/9;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
-  background:linear-gradient(135deg,#0d2a1a 0%,#1a4030 100%);
-  position:relative;overflow:hidden;
-}
-.tour-panel-placeholder::before{content:'';position:absolute;width:300px;height:300px;border:1px solid rgba(201,168,76,0.1);border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);}
-.coming-soon-badge{background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.3);color:var(--gold-light);padding:8px 18px;border-radius:100px;font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;}
-.coming-label{color:rgba(255,255,255,0.5);font-size:14px;}
-.tour-post-cta{
-  background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);border-top:none;
-  border-radius:0 0 12px 12px;padding:20px 28px;
-  display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;
-}
-.tour-post-cta p{color:rgba(255,255,255,0.8);font-size:15px;}
-.tour-post-cta p strong{color:var(--gold-light);}
-.tour-post-actions{display:flex;gap:12px;flex-wrap:wrap;}
-
 /* ── OPEN DAY DETAILS ── */
 .openday-section{background:var(--cream);}
 .openday-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:start;margin-top:52px;}
@@ -392,8 +352,6 @@ footer{background:#060f0a;padding:48px 5% 30px;color:rgba(255,255,255,0.4);}
   .contact-cards{ grid-template-columns:1fr; }
   .footer-inner{ grid-template-columns:1fr 1fr; }
   .form-row{ grid-template-columns:1fr; }
-  .campus-tabs{ flex-direction:column; border-radius:8px 8px 0 0; }
-  .campus-tab{ border-right:none; border-bottom:1px solid rgba(201,168,76,0.15); }
   /* Sticky CTA on tablet — full width, admin btn floats above it */
   .sticky-mobile-cta{ display:block; }
   body{ padding-bottom:56px; }
@@ -1705,7 +1663,6 @@ body, html { top:0!important; }
       <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       PBIS Website
     </a>
-    <a href="#tour">Virtual Tour</a>
     <a href="#openday">Open Day</a>
     <a href="#contact">Contact</a><div class="gt-btn" id="gt-btn" tabindex="0">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
@@ -1767,10 +1724,6 @@ body, html { top:0!important; }
       <p class="hero-sub">For 25 years, PBIS has delivered world-class British international education in Vientiane. Join us at our Primary Campus Open Day — and discover what makes a PBIS education truly exceptional.</p>
       <p class="hero-slogan">"Become the best you can be."</p>
       <div class="hero-btns">
-        <a href="#tour" class="btn-primary" onclick="trackEvent('cta',{tour_clicks:1})">
-          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="currentColor" stroke="none"/></svg>
-          Take Virtual Tour
-        </a>
         <a href="#register" class="btn-primary" style="font-size:15px;padding:17px 36px;background:linear-gradient(135deg,#e8c96e,#c9a84c);box-shadow:0 6px 28px rgba(201,168,76,0.45);">
           <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           Register for Open Day
@@ -1781,7 +1734,6 @@ body, html { top:0!important; }
     <div class="hero-right">
       <div class="hero-card"><div class="hero-card-icon">📅</div><div><div class="hero-card-title">Open Day Date</div><div class="hero-card-sub"><span class="hero-date-chip">Wednesday, 8 July 2026</span></div></div></div>
       <div class="hero-card"><div class="hero-card-icon">🎁</div><div><div class="hero-card-title">Exclusive Promotions</div><div class="hero-card-sub">Reg fee 50% off · Summer Camp 30% off · Bandith Coupon</div></div></div>
-      <div class="hero-card"><div class="hero-card-icon">🌐</div><div><div class="hero-card-title">360° Virtual Campus Tour</div><div class="hero-card-sub">Explore our Primary Campus before you visit</div></div></div>
       <div class="hero-card"><div class="hero-card-icon">🤝</div><div><div class="hero-card-title">Business Partnership Day</div><div class="hero-card-sub">Explore collaboration opportunities with our leadership</div></div></div>
     </div>
   </div>
@@ -1828,64 +1780,6 @@ body, html { top:0!important; }
     </div>
     <div class="gallery-cta fade-up">
       <a href="#register" class="btn-primary" style="font-size:15px;padding:18px 44px;">Join Us at Open Day 2026</a>
-    </div>
-  </div>
-</section>
-
-<!-- ── VIRTUAL TOUR ── -->
-<section class="tour-section" id="tour">
-  <div class="container">
-    <div class="section-eyebrow fade-up">360° Virtual Experience</div>
-    <div class="gold-divider fade-up" style="background:linear-gradient(90deg,var(--gold-light),var(--gold));"></div>
-    <h2 class="section-title fade-up">Explore Our <em>Primary Campus</em></h2>
-    <p class="section-sub fade-up">Take an immersive 360° virtual tour of our Primary Campus — classrooms, labs, sports halls, and more. Then come experience it all in person at our Open Day on 8 July 2026.</p>
-
-    <div style="margin-top:48px;">
-      <div class="campus-tabs">
-        <button class="campus-tab active" onclick="switchTour('secondary',this)" id="tab-secondary">
-          <span>🏫</span> Secondary Campus <span class="tab-badge">LIVE</span>
-        </button>
-        <button class="campus-tab" onclick="switchTour('primary',this)" id="tab-primary">
-          <span>📚</span> Primary Campus
-        </button>
-        <button class="campus-tab" onclick="switchTour('ey',this)" id="tab-ey">
-          <span>🌱</span> Early Years Campus
-        </button>
-      </div>
-
-      <!-- Secondary Tour (live) -->
-      <div class="tour-panel active" id="panel-secondary">
-        <iframe
-          src="https://kuula.co/share/collection/7Myhn?logo=1&info=1&fs=1&vr=0&zoom=1&gyro=0&autorotate=0.3&thumbs=1&inst=en"
-          allow="xr-spatial-tracking; gyroscope; accelerometer" allowfullscreen frameborder="0">
-        </iframe>
-      </div>
-      <!-- Primary Tour (placeholder) -->
-      <div class="tour-panel" id="panel-primary">
-        <div class="tour-panel-placeholder">
-          <span style="font-size:60px;">📚</span>
-          <span class="coming-soon-badge">Coming Soon</span>
-          <span class="coming-label">Primary Campus Tour — launching soon</span>
-          <a href="#register" class="btn-primary" style="margin-top:8px;">Register to Be Notified</a>
-        </div>
-      </div>
-      <!-- EY Tour (placeholder) -->
-      <div class="tour-panel" id="panel-ey">
-        <div class="tour-panel-placeholder">
-          <span style="font-size:60px;">🌱</span>
-          <span class="coming-soon-badge">Coming Soon</span>
-          <span class="coming-label">Early Years Campus Tour — launching soon</span>
-          <a href="#register" class="btn-primary" style="margin-top:8px;">Register to Be Notified</a>
-        </div>
-      </div>
-
-      <div class="tour-post-cta">
-        <p>Like what you see? <strong>Register for Open Day and visit us in person.</strong></p>
-        <div class="tour-post-actions">
-          <a href="#register" class="btn-primary" style="font-size:13px;padding:12px 24px;">Register for Open Day</a>
-          <a href="#contact" class="btn-outline" style="font-size:13px;padding:11px 22px;">Speak to Admissions</a>
-        </div>
-      </div>
     </div>
   </div>
 </section>
@@ -2174,12 +2068,11 @@ body, html { top:0!important; }
 <section class="final-section">
   <div class="container">
     <div class="section-eyebrow fade-up" style="color:var(--gold);">Don't Miss Out</div>
-    <h2 class="section-title fade-up">See It Online.<br><em>Experience It In Person.</em></h2>
+    <h2 class="section-title fade-up">Experience PBIS<br><em>In Person.</em></h2>
     <p class="section-sub fade-up">Discover the difference a truly exceptional British international education can make. Join us at Primary Campus Open Day on 8 July 2026 — and claim your exclusive promotions.</p>
     <p class="final-slogan fade-up">"Become the best you can be."</p>
     <div class="final-btns fade-up">
       <a href="#register" class="btn-primary" style="font-size:15px;padding:20px 48px;">Register for Open Day 2026</a>
-      <a href="#tour" class="btn-outline" style="font-size:15px;padding:19px 40px;border-color:rgba(10,40,24,0.25);color:var(--navy);">Explore Virtual Tours</a>
     </div>
   </div>
 </section>
@@ -2198,15 +2091,14 @@ body, html { top:0!important; }
       <h5>Quick Links</h5>
       <a href="#top">Home</a>
       <a href="#gallery">Open Day · 8 July 2026</a>
-      <a href="#tour">Virtual Tours</a>
       <a href="#openday">Open Day Details</a>
       <a href="#register">Register</a>
     </div>
     <div class="footer-col">
       <h5>Campuses</h5>
-      <a href="#tour">Early Years</a>
-      <a href="#tour">Primary School</a>
-      <a href="#tour">Secondary School</a>
+      <a href="#openday">Early Years</a>
+      <a href="#openday">Primary School</a>
+      <a href="#openday">Secondary School</a>
       <a href="https://www.pbis.edu.la" onclick="pbisTrack('nav_click',{event_label:'PBIS Website',event_category:'Navigation'})" target="_blank">PBIS Website</a>
     </div>
     <div class="footer-col">
@@ -2984,7 +2876,6 @@ function testSheetsConnection() {
     source, medium, campaign,
     ts: new Date().toISOString(),
     page_views: 1,
-    tour_clicks: 0,
     form_started: false,
     form_submitted: false,
     campus_interest: ''
@@ -3014,15 +2905,6 @@ try {
   }, { threshold: 0.1 });
   document.querySelectorAll('.fade-up').forEach(function(el) { observer.observe(el); });
 } catch(obsErr) { console.warn('Observer error:', obsErr); }
-
-// Campus tour tabs
-function switchTour(campus, btn) {
-  document.querySelectorAll('.campus-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tour-panel').forEach(p => p.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('panel-' + campus).classList.add('active');
-  trackEvent('tour', {tour_clicks: (window._pbisSession?.tour_clicks||0)+1, campus_viewed: campus});
-}
 
 // Countdown timer to 8 July 2026
 function updateCountdown() {
@@ -3108,7 +2990,7 @@ function handleSubmit(e) {
     num_children: get('num-children'), children: children,
     source: get('hear') || params.get('utm_source') || 'Direct',
     status: 'New',
-    toured: (window._pbisSession?.tour_clicks || 0) > 0,
+    toured: false,
     ts: new Date().toISOString()
   };
 
@@ -5234,7 +5116,6 @@ window.addEventListener('load', function() {
   var sectionMap = {
     'hero-section':        'Hero Section',
     'gallery-section':     'Previous Open Days Gallery',
-    'virtual-tour-section':'360 Virtual Tour',
     'openday-section':     'Open Day Details',
     'promotions-section':  'Exclusive Promotions',
     'register-section':    'Registration Form',
@@ -5260,16 +5141,6 @@ window.addEventListener('load', function() {
       el.setAttribute('data-ga-label', sectionMap[id]);
       obs.observe(el);
     }
-  });
-
-  // Track virtual tour tab clicks
-  document.querySelectorAll('.campus-tab').forEach(function(tab) {
-    tab.addEventListener('click', function() {
-      pbisTrack('virtual_tour_tab_click', {
-        event_label: this.textContent.trim(),
-        event_category: 'Virtual Tour'
-      });
-    });
   });
 
   // Track Google Maps view buttons
