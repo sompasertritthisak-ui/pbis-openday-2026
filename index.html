@@ -1507,26 +1507,36 @@ body.dashboard-active .wa-float-wrap{display:none!important;}
   cursor:pointer;transition:all 0.2s;white-space:nowrap;
   position:relative;
   z-index:2; /* same as nav links — no higher */
+  -webkit-tap-highlight-color:transparent;user-select:none;
 }
 .gt-btn:hover{background:rgba(201,168,76,0.18);border-color:rgba(201,168,76,0.8);color:#e8c96e;}
-.gt-menu{
+.gt-btn.open{background:rgba(201,168,76,0.18);border-color:rgba(201,168,76,0.8);color:#e8c96e;}
+/* Portal: rendered outside <nav> so it escapes the backdrop-filter
+   stacking context that clips position:absolute children on iOS Safari.
+   JS positions it with position:fixed using getBoundingClientRect(). */
+#gt-menu-portal{
   display:none;
-  position:absolute;top:calc(100% + 8px);left:0;
+  position:fixed;
   background:#0d2e18;border:1px solid rgba(201,168,76,0.2);
   border-radius:8px;min-width:220px;
-  /* dropdown gets higher z-index only when open — does NOT affect siblings */
-  z-index:9999;
+  z-index:99999;
   box-shadow:0 8px 32px rgba(0,0,0,0.4);overflow:hidden;
   max-height:400px;overflow-y:auto;
-  pointer-events:none; /* non-open state: invisible to clicks */
+  -webkit-overflow-scrolling:touch;
 }
-.gt-btn.open .gt-menu{display:block;pointer-events:all;}
-.gt-menu a{
-  display:block;padding:9px 16px;color:rgba(255,255,255,0.85);
+#gt-menu-portal.open{display:block;}
+#gt-menu-portal a{
+  display:block;padding:11px 16px;color:rgba(255,255,255,0.85);
   font-size:13px;text-decoration:none;font-family:sans-serif;
   transition:background 0.15s;white-space:nowrap;
+  -webkit-tap-highlight-color:rgba(201,168,76,0.25);
 }
-.gt-menu a:hover{background:rgba(201,168,76,0.15);color:#e8c96e;}
+#gt-menu-portal a:hover{background:rgba(201,168,76,0.15);color:#e8c96e;}
+
+@media (max-width:768px){
+  .gt-label,.gt-chevron{display:none;}
+  .gt-btn{padding:9px;gap:0;}
+}
 
 /* ── LOGIN MODAL ── */
 .login-modal-backdrop {
@@ -1697,41 +1707,10 @@ body, html { top:0!important; }
     </a>
     <a href="#tour">Virtual Tour</a>
     <a href="#openday">Open Day</a>
-    <a href="#contact">Contact</a><div class="gt-btn" id="gt-btn" tabindex="0" onclick="this.classList.toggle('open')" onblur="setTimeout(()=>this.classList.remove('open'),200)">
+    <a href="#contact">Contact</a><div class="gt-btn" id="gt-btn" tabindex="0">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
-      Translate ▾
-      <div class="gt-menu">
-        <a href="https://translate.google.com/translate?sl=en&tl=lo&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇱🇦 ລາວ (Lao)</a>
-        <a href="https://translate.google.com/translate?sl=en&tl=zh-CN&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/" target="_blank">🇨🇳 中文简体 (Chinese Simplified)</a>
-        <a href="https://translate.google.com/translate?sl=en&tl=zh-TW&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/" target="_blank">🇹🇼 中文繁體 (Chinese Traditional)</a>
-        <a href="https://translate.google.com/translate?sl=en&tl=th&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇹🇭 ภาษาไทย (Thai)</a>
-        <a href="https://translate.google.com/translate?sl=en&tl=vi&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇻🇳 Tiếng Việt (Vietnamese)</a>
-        <a href="https://translate.google.com/translate?sl=en&tl=ko&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇰🇷 한국어 (Korean)</a>
-        <a href="https://translate.google.com/translate?sl=en&tl=ja&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇯🇵 日本語 (Japanese)</a>
-        <a href="https://translate.google.com/translate?sl=en&tl=fr&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇫🇷 Français (French)</a>
-        <a href="https://translate.google.com/translate?sl=en&tl=de&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇩🇪 Deutsch (German)</a>
-        <a href="https://translate.google.com/translate?sl=en&tl=es&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇪🇸 Español (Spanish)</a>
-        <a href="https://translate.google.com/translate?sl=en&tl=pt&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇵🇹 Português (Portuguese)</a>
-        <a href="https://translate.google.com/translate?sl=en&tl=it&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇮🇹 Italiano (Italian)</a>
-        <a href="https://translate.google.com/translate?sl=en&tl=ru&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇷🇺 Русский (Russian)</a>
-        <a href="https://translate.google.com/translate?sl=en&tl=ar&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇸🇦 العربية (Arabic)</a>
-        <a href="https://translate.google.com/translate?sl=en&tl=hi&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇮🇳 हिन्दी (Hindi)</a>
-        <a href="https://translate.google.com/translate?sl=en&tl=bn&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇧🇩 বাংলা (Bengali)</a>
-        <a href="https://translate.google.com/translate?sl=en&tl=id&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇮🇩 Bahasa Indonesia</a>
-        <a href="https://translate.google.com/translate?sl=en&tl=ms&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇲🇾 Bahasa Melayu</a>
-        <a href="https://translate.google.com/translate?sl=en&tl=my&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇲🇲 မြန်မာ (Burmese)</a>
-        <a href="https://translate.google.com/translate?sl=en&tl=km&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇰🇭 ភាសាខ្មែរ (Khmer)</a>
-        <a href="https://translate.google.com/translate?sl=en&tl=tl&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇵🇭 Filipino</a>
-        <a href="https://translate.google.com/translate?sl=en&tl=nl&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇳🇱 Nederlands (Dutch)</a>
-        <a href="https://translate.google.com/translate?sl=en&tl=sv&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇸🇪 Svenska (Swedish)</a>
-        <a href="https://translate.google.com/translate?sl=en&tl=pl&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇵🇱 Polski (Polish)</a>
-        <a href="https://translate.google.com/translate?sl=en&tl=tr&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇹🇷 Türkçe (Turkish)</a>
-        <a href="https://translate.google.com/translate?sl=en&tl=uk&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇺🇦 Українська (Ukrainian)</a>
-        <a href="https://translate.google.com/translate?sl=en&tl=fa&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇮🇷 فارسی (Persian)</a>
-        <a href="https://translate.google.com/translate?sl=en&tl=ur&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇵🇰 اردو (Urdu)</a>
-        <a href="https://translate.google.com/translate?sl=en&tl=ne&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇳🇵 नेपाली (Nepali)</a>
-        <a href="https://translate.google.com/translate?sl=en&tl=sw&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇰🇪 Kiswahili (Swahili)</a>
-      </div>
+      <span class="gt-label">Translate</span><span class="gt-chevron">▾</span>
+    </div>
     </div>
     <a href="#register" class="nav-cta">Register Now</a>
     <button class="nav-admin-btn" onclick="openLoginModal()" title="PBIS Admissions Dashboard" type="button" id="nav-admin-btn">
@@ -1741,6 +1720,38 @@ body, html { top:0!important; }
     </button>
   </div>
 </nav>
+<div id="gt-menu-portal">
+  <a href="https://translate.google.com/translate?sl=en&tl=lo&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇱🇦 ລາວ (Lao)</a>
+  <a href="https://translate.google.com/translate?sl=en&tl=zh-CN&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/" target="_blank">🇨🇳 中文简体 (Chinese Simplified)</a>
+  <a href="https://translate.google.com/translate?sl=en&tl=zh-TW&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/" target="_blank">🇹🇼 中文繁體 (Chinese Traditional)</a>
+  <a href="https://translate.google.com/translate?sl=en&tl=th&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇹🇭 ภาษาไทย (Thai)</a>
+  <a href="https://translate.google.com/translate?sl=en&tl=vi&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇻🇳 Tiếng Việt (Vietnamese)</a>
+  <a href="https://translate.google.com/translate?sl=en&tl=ko&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇰🇷 한국어 (Korean)</a>
+  <a href="https://translate.google.com/translate?sl=en&tl=ja&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇯🇵 日本語 (Japanese)</a>
+  <a href="https://translate.google.com/translate?sl=en&tl=fr&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇫🇷 Français (French)</a>
+  <a href="https://translate.google.com/translate?sl=en&tl=de&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇩🇪 Deutsch (German)</a>
+  <a href="https://translate.google.com/translate?sl=en&tl=es&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇪🇸 Español (Spanish)</a>
+  <a href="https://translate.google.com/translate?sl=en&tl=pt&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇵🇹 Português (Portuguese)</a>
+  <a href="https://translate.google.com/translate?sl=en&tl=it&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇮🇹 Italiano (Italian)</a>
+  <a href="https://translate.google.com/translate?sl=en&tl=ru&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇷🇺 Русский (Russian)</a>
+  <a href="https://translate.google.com/translate?sl=en&tl=ar&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇸🇦 العربية (Arabic)</a>
+  <a href="https://translate.google.com/translate?sl=en&tl=hi&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇮🇳 हिन्दी (Hindi)</a>
+  <a href="https://translate.google.com/translate?sl=en&tl=bn&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇧🇩 বাংলা (Bengali)</a>
+  <a href="https://translate.google.com/translate?sl=en&tl=id&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇮🇩 Bahasa Indonesia</a>
+  <a href="https://translate.google.com/translate?sl=en&tl=ms&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇲🇾 Bahasa Melayu</a>
+  <a href="https://translate.google.com/translate?sl=en&tl=my&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇲🇲 မြန်မာ (Burmese)</a>
+  <a href="https://translate.google.com/translate?sl=en&tl=km&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇰🇭 ភាសាខ្មែរ (Khmer)</a>
+  <a href="https://translate.google.com/translate?sl=en&tl=tl&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇵🇭 Filipino</a>
+  <a href="https://translate.google.com/translate?sl=en&tl=nl&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇳🇱 Nederlands (Dutch)</a>
+  <a href="https://translate.google.com/translate?sl=en&tl=sv&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇸🇪 Svenska (Swedish)</a>
+  <a href="https://translate.google.com/translate?sl=en&tl=pl&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇵🇱 Polski (Polish)</a>
+  <a href="https://translate.google.com/translate?sl=en&tl=tr&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇹🇷 Türkçe (Turkish)</a>
+  <a href="https://translate.google.com/translate?sl=en&tl=uk&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇺🇦 Українська (Ukrainian)</a>
+  <a href="https://translate.google.com/translate?sl=en&tl=fa&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇮🇷 فارسی (Persian)</a>
+  <a href="https://translate.google.com/translate?sl=en&tl=ur&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇵🇰 اردو (Urdu)</a>
+  <a href="https://translate.google.com/translate?sl=en&tl=ne&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇳🇵 नेपाली (Nepali)</a>
+  <a href="https://translate.google.com/translate?sl=en&tl=sw&u=https://sompasertritthisak-ui.github.io/pbis-openday-2026/"  target="_blank">🇰🇪 Kiswahili (Swahili)</a>
+</div>
 <!-- ── HERO ── -->
 <section class="hero" id="top">
   <div class="hero-bg"></div>
@@ -1985,7 +1996,6 @@ body, html { top:0!important; }
           <div class="trust-item"><div class="trust-check">✓</div> Guided campus tour included on the day</div>
           <div class="trust-item"><div class="trust-check">✓</div> Meet teachers, heads of school & leadership</div>
           <div class="trust-item"><div class="trust-check">✓</div> Registration fee 50% off + Bandith Coupon 1,000,000 Kip</div>
-          <div class="trust-item"><div class="trust-check">✓</div> Summer Camp 30% off — exclusive for Open Day families</div>
           <div class="trust-item"><div class="trust-check">✓</div> Q&A session with our admissions team</div>
         </div>
         </div>
@@ -2044,9 +2054,7 @@ body, html { top:0!important; }
               <label for="campus">Interested Campus *</label>
               <select id="campus" name="interested_campus" required onchange="trackEvent('form',{campus_interest:this.value})">
                 <option value="">Select campus</option>
-                <option value="EY">Early Years Campus</option>
-                <option value="Primary">Primary Campus</option>
-                <option value="Secondary">Secondary Campus</option>
+                <option value="Primary" selected>Primary Campus</option>
               </select>
             </div>
             <div class="form-group">
@@ -3232,16 +3240,14 @@ function updateChildren(count) {
           <select name="child${i}_campus" required
             onchange="updateChildGrades(this, 'child${i}_grade_select')">
             <option value="">Select campus…</option>
-            <option value="EY" ${campus==='EY'?'selected':''}>Early Years Campus</option>
-            <option value="Primary" ${campus==='Primary'?'selected':''}>Primary Campus</option>
-            <option value="Secondary" ${campus==='Secondary'?'selected':''}>Secondary Campus</option>
+            <option value="Primary" selected>Primary Campus</option>
           </select>
         </div>
         <div class="form-group">
           <label>Year Group / Grade *</label>
           <select name="child${i}_grade" id="child${i}_grade_select" required>
-            <option value="">Select campus first…</option>
-            ${campus ? buildGradeOptions(campus) : ''}
+            <option value="">Select grade…</option>
+            ${buildGradeOptions('Primary')}
           </select>
         </div>
       </div>
@@ -5425,6 +5431,75 @@ window.addEventListener('load', function() {
   window.toggleWaPopup = toggleWaPopup;
   window.openWaPopup   = openWaPopup;
   window.closeWaPopup  = closeWaPopup;
+})();
+
+/* ── TRANSLATE DROPDOWN (portal pattern) ──
+   The menu lives in #gt-menu-portal, a sibling of <nav> rather than a
+   child of .gt-btn. Because <nav> has backdrop-filter, it creates a new
+   stacking/compositing context on iOS Safari that silently clips any
+   position:absolute descendant trying to render outside nav's bounds —
+   the button still toggles its "open" class but the dropdown paints
+   invisibly behind the boundary. Using position:fixed on a portal
+   element outside <nav>, with its coordinates computed via
+   getBoundingClientRect(), sidesteps this entirely. */
+(function(){
+  var btn    = document.getElementById('gt-btn');
+  var portal = document.getElementById('gt-menu-portal');
+  if(!btn || !portal) return;
+
+  function positionPortal(){
+    var r = btn.getBoundingClientRect();
+    var menuWidth = portal.offsetWidth || 220;
+    var left = r.left;
+    // keep menu on-screen if button is near the right edge
+    if(left + menuWidth > window.innerWidth - 8){
+      left = Math.max(8, window.innerWidth - menuWidth - 8);
+    }
+    portal.style.top  = (r.bottom + 8) + 'px';
+    portal.style.left = left + 'px';
+  }
+
+  function openMenu(){
+    portal.classList.add('open');
+    btn.classList.add('open');
+    positionPortal();
+    setTimeout(function(){
+      document.addEventListener('click', outsideClick);
+      document.addEventListener('touchstart', outsideClick);
+    }, 50);
+    window.addEventListener('scroll', positionPortal, true);
+    window.addEventListener('resize', positionPortal);
+  }
+
+  function closeMenu(){
+    portal.classList.remove('open');
+    btn.classList.remove('open');
+    document.removeEventListener('click', outsideClick);
+    document.removeEventListener('touchstart', outsideClick);
+    window.removeEventListener('scroll', positionPortal, true);
+    window.removeEventListener('resize', positionPortal);
+  }
+
+  function toggleMenu(){
+    if(portal.classList.contains('open')) closeMenu(); else openMenu();
+  }
+
+  function outsideClick(e){
+    if(!btn.contains(e.target) && !portal.contains(e.target)) closeMenu();
+  }
+
+  // touchend + preventDefault cancels the iOS "ghost click" that would
+  // otherwise fire ~300ms later and immediately re-toggle the menu
+  btn.addEventListener('touchend', function(e){
+    e.preventDefault();
+    toggleMenu();
+  });
+  btn.addEventListener('click', toggleMenu);
+
+  // closing a link inside the portal should close the menu too
+  portal.addEventListener('click', function(e){
+    if(e.target.tagName === 'A') closeMenu();
+  });
 })();
 </script>
 </body>
