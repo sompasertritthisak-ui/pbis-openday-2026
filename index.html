@@ -335,9 +335,15 @@ footer{background:#060f0a;padding:48px 5% 30px;color:rgba(255,255,255,0.4);}
 /* ── TABLET (max 960px) ── */
 @media(max-width:960px){
   /* nav top is now driven by JS --bar-h var, no hardcoded top needed */
-  .nav-links{ display:flex !important; gap:8px; }
+  nav{ padding:8px 3%; gap:8px; }
+  .nav-logo{ gap:7px; min-width:0; }
+  .nav-logo img{ height:38px !important; }
+  .nav-school-name{ font-size:10.5px; max-width:150px; white-space:normal; line-height:1.25; }
+  .nav-school-name span{ font-size:8.5px; }
+  .nav-links{ display:flex !important; align-items:center; gap:10px; flex-shrink:0; }
   .nav-links a:not(.nav-cta):not(.nav-admin-btn){ display:none; }
-  .nav-cta{ padding:8px 12px !important; font-size:11px !important; }
+  .gt-btn{ margin-right:0; }
+  .nav-cta{ padding:8px 14px !important; font-size:11px !important; white-space:nowrap; }
   .nav-admin-label{ display:none; }
   .nav-admin-btn{ padding:7px 9px !important; gap:5px; }
   .hero-content{ grid-template-columns:1fr; padding-top:120px; }
@@ -361,6 +367,16 @@ footer{background:#060f0a;padding:48px 5% 30px;color:rgba(255,255,255,0.4);}
 
 /* ── MOBILE (max 600px) ── */
 @media(max-width:600px){
+  /* Nav — phones need tighter sizing than tablets to avoid overflow */
+  nav{ padding:7px 3%; gap:6px; }
+  .nav-logo img{ height:32px !important; }
+  .nav-school-name{ font-size:9.5px; max-width:112px; line-height:1.2; }
+  .nav-school-name span{ font-size:7.5px; }
+  .nav-links{ gap:7px; }
+  .nav-cta{ padding:7px 11px !important; font-size:10px !important; }
+  .nav-admin-btn{ padding:6px 8px !important; gap:4px; }
+  .nav-admin-btn img{ height:15px !important; width:15px !important; }
+
   /* Hero — taller on mobile, portrait-friendly crop */
   section.hero-section{
     min-height:100svh;
@@ -401,11 +417,16 @@ footer{background:#060f0a;padding:48px 5% 30px;color:rgba(255,255,255,0.4);}
 /* ── SMALL MOBILE (max 430px) ── */
 @media(max-width:430px){
   .hero-h1{ font-size:26px !important; }
-  .nav-logo-text h1{ font-size:12px; }
   .countdown-blocks{ gap:6px; }
   .cd-block{ min-width:54px; padding:10px 8px; }
   .cd-num{ font-size:24px; }
-  .nav-cta{ padding:6px 9px !important; font-size:10px !important; }
+  nav{ gap:5px; padding:7px 3%; }
+  .nav-logo img{ height:30px !important; }
+  .nav-school-name{ font-size:9px; max-width:96px; }
+  .nav-school-name span{ font-size:7px; }
+  .nav-links{ gap:6px; }
+  .nav-cta{ padding:7px 10px !important; font-size:10px !important; }
+  .nav-admin-btn{ padding:6px 8px !important; }
 }
 
 /* ── GALLERY OVERRIDE — 3 cols ── */
