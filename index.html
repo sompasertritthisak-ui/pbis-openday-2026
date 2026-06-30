@@ -4116,8 +4116,9 @@ function deleteLead(ts) {
 // Auto-load on page open
 try { loadData(); } catch(e) { console.warn("loadData error:", e); }
 
-// Auto-refresh every 20 seconds — pending mutations protected from overwrites
-try { setInterval(async function() { try { await loadData(); } catch(e){} }, 20000); } catch(e){}
+// Auto-refresh every 90 seconds — pending mutations protected from overwrites.
+// Slowed from 20s: full table re-render was interrupting staff mid-edit/scroll/search.
+try { setInterval(async function() { try { await loadData(); } catch(e){} }, 90000); } catch(e){}
 
 
 /* ════════════════════════════════════════
