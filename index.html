@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+\<!DOCTYPE html>
 <html lang="en">
 <head>
 <!-- Google tag (gtag.js) -->
@@ -476,7 +476,11 @@ footer{background:#060f0a;padding:48px 5% 30px;color:rgba(255,255,255,0.4);}
   min-height: 100vh;
 }
 #landing-view { display: block; }
+#dashboard-view { display: none; }
 body.dashboard-active #landing-view { display: none !important; visibility: hidden !important; pointer-events: none !important; }
+body.dashboard-active #dashboard-view { display: block !important; }
+body.logged-out #landing-view { display: none !important; }
+body.logged-out #dashboard-view { display: none !important; }
 
 /* Scope all dashboard CSS under #dashboard-view */
 
@@ -2735,6 +2739,8 @@ function openLoginModal() {
 }
 
 function closeLoginModal() {
+  // If user is logged out, don't allow closing — they must log in
+  if(document.body.classList.contains('logged-out')) return;
   var backdrop = document.getElementById('login-modal-backdrop');
   if(backdrop) { backdrop.classList.remove('open'); backdrop.style.display = ''; }
   var inp = document.getElementById('login-pwd-input');
@@ -2744,6 +2750,8 @@ function closeLoginModal() {
 }
 
 function handleLoginBackdrop(e) {
+  // Block backdrop-click dismiss when logged out
+  if(document.body.classList.contains('logged-out')) return;
   if(e.target === e.currentTarget) closeLoginModal();
 }
 
@@ -2831,6 +2839,7 @@ function triggerLockout() {
 }
 
 function enterDashboard() {
+  document.body.classList.remove('logged-out');
   document.getElementById('landing-view').style.display = 'none';
   document.getElementById('dashboard-view').style.display = 'block';
   document.body.classList.add('dashboard-active');
@@ -2858,6 +2867,7 @@ function enterDashboard() {
     document.body.classList.add('role-marketing');
     // Show a notice banner
     const notice = document.createElement('div');
+    notice.className = 'marketing-notice';
     notice.style.cssText = 'background:rgba(59,130,246,0.12);border-bottom:1px solid rgba(59,130,246,0.25);padding:8px 24px;font-size:12px;color:rgba(255,255,255,0.7);text-align:center;letter-spacing:0.04em;';
     notice.textContent = '👁  Marketing view — read-only access. Action buttons are disabled for this role.';
     const dbView = document.getElementById('dashboard-view');
@@ -2891,22 +2901,39 @@ function showDashboard() { openLoginModal(); } // legacy alias
 
 function confirmLogout() {
   if(!confirm('Log out of the dashboard?\n\nYou will need to enter your password again to access it.')) return;
-  showLanding();
-  // Re-open the login modal so they must log back in
-  setTimeout(() => openLoginModal(), 200);
+  // Clear everything first
+  _currentUser = null;
+  _sessionExpiry = 0;
+  try { sessionStorage.removeItem('pbis_session'); } catch(e){}
+  // Remove badge
+  const badge = document.getElementById('pbis-user-badge');
+  if(badge) badge.remove();
+  // Remove marketing notice if present
+  const notices = document.querySelectorAll('#dashboard-view > div.marketing-notice');
+  notices.forEach(n => n.remove());
+  // Lock both views — show nothing
+  document.body.classList.remove('dashboard-active', 'role-marketing');
+  document.body.classList.add('logged-out');
+  document.getElementById('landing-view').style.display = 'none';
+  document.getElementById('dashboard-view').style.display = 'none';
+  window.scrollTo(0,0);
+  // Open login modal after a short delay
+  setTimeout(() => openLoginModal(), 150);
 }
 
 function showLanding() {
-  document.getElementById('landing-view').style.display = 'block';
-  document.getElementById('dashboard-view').style.display = 'none';
-  document.body.classList.remove('dashboard-active', 'role-marketing');
-  // Clear user badge
+  // Only used by session timeout — redirect to login, not landing page
+  _currentUser = null;
+  _sessionExpiry = 0;
+  try { sessionStorage.removeItem('pbis_session'); } catch(e){}
   const badge = document.getElementById('pbis-user-badge');
   if(badge) badge.remove();
-  // Clear session
-  _currentUser = null;
-  try { sessionStorage.removeItem('pbis_session'); } catch(e){}
+  document.body.classList.remove('dashboard-active', 'role-marketing');
+  document.body.classList.add('logged-out');
+  document.getElementById('landing-view').style.display = 'none';
+  document.getElementById('dashboard-view').style.display = 'none';
   window.scrollTo(0,0);
+  setTimeout(() => openLoginModal(), 150);
 }
 
 
