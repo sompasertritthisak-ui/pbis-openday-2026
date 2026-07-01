@@ -1,4 +1,4 @@
-\<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <!-- Google tag (gtag.js) -->
@@ -481,6 +481,46 @@ body.dashboard-active #landing-view { display: none !important; visibility: hidd
 body.dashboard-active #dashboard-view { display: block !important; }
 body.logged-out #landing-view { display: none !important; }
 body.logged-out #dashboard-view { display: none !important; }
+
+/* Dashboard body — dark background so nothing bleeds through */
+body.dashboard-active,
+body.logged-out { background: #0a2818 !important; overflow-x: hidden; }
+
+/* Hide every individual landing page element when dashboard is active */
+body.dashboard-active .anniversary-bar,
+body.dashboard-active nav,
+body.dashboard-active #gt-menu-portal,
+body.dashboard-active .hero,
+body.dashboard-active .gallery-section,
+body.dashboard-active .openday-section,
+body.dashboard-active .offer-section,
+body.dashboard-active .reg-section,
+body.dashboard-active .contact-section,
+body.dashboard-active .final-section,
+body.dashboard-active footer,
+body.dashboard-active .sticky-mobile-cta,
+body.dashboard-active .wa-float-wrap,
+body.dashboard-active [id="register"],
+body.dashboard-active [id="contact"],
+body.dashboard-active [id="openday"],
+body.dashboard-active [id="offer"],
+body.dashboard-active [id="top"],
+body.dashboard-active [id="gallery-section"] { display: none !important; visibility: hidden !important; }
+
+/* Hide every individual landing page element when logged out */
+body.logged-out .anniversary-bar,
+body.logged-out nav,
+body.logged-out #gt-menu-portal,
+body.logged-out .hero,
+body.logged-out .gallery-section,
+body.logged-out .openday-section,
+body.logged-out .offer-section,
+body.logged-out .reg-section,
+body.logged-out .contact-section,
+body.logged-out .final-section,
+body.logged-out footer,
+body.logged-out .sticky-mobile-cta,
+body.logged-out .wa-float-wrap { display: none !important; visibility: hidden !important; }
 
 /* Scope all dashboard CSS under #dashboard-view */
 
@@ -1384,7 +1424,7 @@ body.translated-ltr, body.translated-rtl { margin-top: 0 !important; top: 0 !imp
   display:flex;flex-direction:column;align-items:flex-end;gap:10px;
   pointer-events:none;
 }
-body.dashboard-active .wa-float-wrap{display:none!important;}
+/* WhatsApp float hidden on dashboard — covered by comprehensive block above */
 
 .wa-fab{
   position:relative;
@@ -1649,15 +1689,6 @@ body.role-marketing .action-btn{
   font-size: 12px; color: #b91c1c; display: none; text-align: center;
 }
 .login-lockout-msg.show { display: block; }
-/* Hide mobile sticky CTA when on dashboard */
-body.dashboard-active .sticky-mobile-cta { display: none !important; }
-
-/* ── Hide landing page elements when admin dashboard is active ── */
-body.dashboard-active .contact-section { display: none !important; }
-body.dashboard-active .final-section   { display: none !important; }
-body.dashboard-active footer           { display: none !important; }
-body.dashboard-active .anniversary-bar { display: none !important; }
-body.dashboard-active nav              { display: none !important; }
 </style>
 
 <script>
