@@ -1517,6 +1517,25 @@ body.dashboard-active .wa-float-wrap{display:none!important;}
   .gt-btn{padding:9px;gap:0;}
 }
 
+/* ── ROLE-BASED ACCESS: Marketing = read-only ── */
+body.role-marketing .btn-approve,
+body.role-marketing .btn-decline,
+body.role-marketing .btn-reschedule,
+body.role-marketing .btn-callback,
+body.role-marketing .btn-pipe-save,
+body.role-marketing .btn-callback-send,
+body.role-marketing [onclick*="approveRequest"],
+body.role-marketing [onclick*="declineRequest"],
+body.role-marketing [onclick*="rescheduleRequest"],
+body.role-marketing [onclick*="openCallbackModal"],
+body.role-marketing [onclick*="openPipeModal"],
+body.role-marketing [onclick*="savePipelineLead"],
+body.role-marketing [onclick*="sendCallbackEmail"],
+body.role-marketing [onclick*="openEnrolModal"],
+body.role-marketing .action-btn{
+  opacity:0.3;pointer-events:none;cursor:not-allowed;filter:grayscale(1);
+}
+
 /* ── LOGIN MODAL ── */
 .login-modal-backdrop {
   position: fixed; inset: 0; z-index: 999999;
@@ -1969,7 +1988,9 @@ body, html { top:0!important; }
               <label for="campus">Interested Campus *</label>
               <select id="campus" name="interested_campus" required onchange="trackEvent('form',{campus_interest:this.value})">
                 <option value="">Select campus</option>
-                <option value="Primary" selected>Primary Campus</option>
+                <option value="EY">Early Years Campus</option>
+                <option value="Primary">Primary Campus</option>
+                <option value="Secondary">Secondary Campus</option>
               </select>
             </div>
             <div class="form-group">
@@ -2035,7 +2056,7 @@ body, html { top:0!important; }
       <div class="contact-card fade-up">
         <div class="contact-card-head">
           <div class="contact-card-icon">🌱</div>
-          <div><h4>Early Years Campus</h4><div class="campus-label">Ages 3–5 · Nursery & Reception</div></div>
+          <div><h4>Early Years Campus</h4><div class="campus-label">Toddler – Reception · Age 1+–4+</div></div>
         </div>
         <a href="tel:+8562057280925" class="contact-num">+856 20 5728 0925</a>
         <p style="font-size:13px;color:var(--gray-mid);margin-bottom:12px;">Mon–Fri, 8:00 AM – 5:00 PM</p>
@@ -2050,7 +2071,7 @@ body, html { top:0!important; }
       <div class="contact-card fade-up">
         <div class="contact-card-head">
           <div class="contact-card-icon">📚</div>
-          <div><h4>Primary Campus</h4><div class="campus-label">Year 1–6 · Ages 5–11</div></div>
+          <div><h4>Primary Campus</h4><div class="campus-label">Year 1–6 · Age 5+–10+</div></div>
         </div>
         <a href="tel:+8562055386636" class="contact-num">+856 20 5538 6636</a>
         <p style="font-size:13px;color:var(--gray-mid);margin-bottom:12px;">Mon–Fri, 8:00 AM – 5:00 PM</p>
@@ -2065,7 +2086,7 @@ body, html { top:0!important; }
       <div class="contact-card fade-up">
         <div class="contact-card-head">
           <div class="contact-card-icon">🏫</div>
-          <div><h4>Secondary Campus</h4><div class="campus-label">Year 7–12 · Ages 11–18</div></div>
+          <div><h4>Secondary Campus</h4><div class="campus-label">Year 7–13 · Age 11+–17+</div></div>
         </div>
         <a href="tel:+8562055386672" class="contact-num">+856 20 5538 6672</a>
         <p style="font-size:13px;color:var(--gray-mid);margin-bottom:12px;">Mon–Fri, 8:00 AM – 5:00 PM</p>
@@ -2649,15 +2670,35 @@ body, html { top:0!important; }
 /* ════════════════════════════════════════
    VIEW SWITCHER
 ════════════════════════════════════════ */
-// ── SECURITY CONFIG
-const PWD_HASH = "462bced97f86cb0a9692ab7b4ca3fb32d58b448f1609eb9d4a415e7ed73df678"; // SHA-256 of password — never stored plain text
-const MAX_ATTEMPTS = 5;        // lockout after 5 wrong tries
-const LOCKOUT_SECS = 60;       // 60 second lockout
+// ── SECURITY CONFIG — ROLE-BASED MULTI-USER AUTH
+// Passwords are never stored in plain text. Only SHA-256 hashes are kept here.
+// Role "admissions" = full dashboard access
+// Role "marketing"  = read-only view (no approve/decline/email actions)
+const STAFF_DIRECTORY = [
+  // ── ADMISSIONS TEAM (full access) ──
+  { name:'Potter', role:'admissions', hash:'47f251ebdd465aab0a64c6a29afd4b1b42e26c9a18b0c85e01cc267937b6cbce' },
+  { name:'Katty',  role:'admissions', hash:'e6a4086e6833e9c9effe3043051bfb778a11ffde3bb09f75c06ec5f1e126da63' },
+  { name:'Rosa',   role:'admissions', hash:'99713f21bb1e0c4fe16165c7f519fc7a944c82e753c5f31870441469aaadcd61' },
+  { name:'Anny',   role:'admissions', hash:'ae5fdef6a447c5827f022dc7d504823aca1f745d236918528b2cda3952513cfc' },
+  { name:'Vieng',  role:'admissions', hash:'2df89ed979e46102e7886e39418bfbb48ac54f5e6fe58456576fe670219e39ac' },
+  { name:'Sarah',  role:'admissions', hash:'cfcbaa697ee4ae2714aa89c3e717a357916804ec9b614edacf86d437dc8f2d3b' },
+  { name:'Nanfa',  role:'admissions', hash:'2ec123bd293415954168b4872ff050d10a1bc23abab6cbe8791e1c50f28aa530' },
+  { name:'Ana',    role:'admissions', hash:'2b3498342df6b03dc4ee98e57622ea23af4b8129ddb2a3ac0cede6f0ea5f7d4b' },
+  // ── MARKETING TEAM (view-only access) ──
+  { name:'Top',    role:'marketing',  hash:'b934e68c53aecec1cd268f9e364b34cec77d74de41f7e60aa1baf389f5a6bc80' },
+  { name:'Yos',    role:'marketing',  hash:'30539d638e72bd39ebd127fa0df1c2980ce163afdbd160bd6df84d0cd21e35b0' },
+  { name:'Kop',    role:'marketing',  hash:'1a4ba375069181ed505f14a318da6f408aa843b86d00b499f3c8ba6d2cac4ec0' },
+  { name:'Tobee',  role:'marketing',  hash:'e85fc10ef93f49969ccabc06de5a8c1423cebd178a2940821fd676e8d7b5c833' },
+  { name:'Simon',  role:'marketing',  hash:'244a416f41f41c569cf0280ad7c5b485f04dc71d4280a38a6e263a505c5767aa' },
+];
+let _currentUser = null; // { name, role } set on successful login
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_SECS = 60;
 let _loginAttempts = 0;
 let _lockedUntil = 0;
 let _lockoutTimer = null;
 let _sessionExpiry = 0;
-const SESSION_MINS = 120; // auto-logout after 2 hours
+const SESSION_MINS = 120;
 
 // Simple SHA-256 implementation (no external library needed)
 async function sha256(message) {
@@ -2726,30 +2767,31 @@ async function submitLogin() {
   btn.disabled = true;
   btn.textContent = 'Verifying…';
 
-  // Hash the entered password and compare
+  // Hash the entered password and compare against every staff member
   const entered_hash = await sha256(pwd);
   btn.disabled = false;
   btn.textContent = '🔐 Access Dashboard';
 
-  if(entered_hash === PWD_HASH) {
+  const matched = STAFF_DIRECTORY.find(s => s.hash === entered_hash);
+
+  if(matched) {
+    _currentUser = { name: matched.name, role: matched.role };
     _loginAttempts = 0;
     _sessionExpiry = Date.now() + (SESSION_MINS * 60 * 1000);
-    // Store session (expires)
-    try { sessionStorage.setItem('pbis_session', JSON.stringify({exp: _sessionExpiry})); } catch(e){}
+    try { sessionStorage.setItem('pbis_session', JSON.stringify({exp: _sessionExpiry, name: _currentUser.name, role: _currentUser.role})); } catch(e){}
     closeLoginModal();
     enterDashboard();
   } else {
+    _currentUser = null;
     _loginAttempts++;
     inp.value = '';
     inp.classList.add('error');
     setTimeout(() => inp.classList.remove('error'), 500);
     document.getElementById('login-error-msg').classList.add('show');
     updateAttemptsMsg();
-    // Lockout after max attempts
     if(_loginAttempts >= MAX_ATTEMPTS) {
       triggerLockout();
     }
-    // Log failed attempt
     console.warn(`[PBIS Security] Failed login attempt ${_loginAttempts}/${MAX_ATTEMPTS} at ${new Date().toISOString()}`);
   }
 }
@@ -2785,6 +2827,37 @@ function enterDashboard() {
   document.getElementById('dashboard-view').style.display = 'block';
   document.body.classList.add('dashboard-active');
   window.scrollTo(0,0);
+
+  // Show logged-in user name + role badge in the topbar
+  const topbar = document.querySelector('#dashboard-view .topbar-left');
+  if(topbar && _currentUser) {
+    const existing = document.getElementById('pbis-user-badge');
+    if(!existing) {
+      const roleColor = _currentUser.role === 'admissions' ? '#c9a84c' : '#3b82f6';
+      const roleLabel = _currentUser.role === 'admissions' ? 'Admissions' : 'Marketing';
+      const badge = document.createElement('div');
+      badge.id = 'pbis-user-badge';
+      badge.style.cssText = 'display:flex;align-items:center;gap:8px;margin-left:16px;padding:5px 12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:12px;color:rgba(255,255,255,0.85);white-space:nowrap;';
+      badge.innerHTML = `<span style="width:8px;height:8px;border-radius:50%;background:${roleColor};flex-shrink:0;"></span>` +
+        `<span>${_currentUser.name}</span>` +
+        `<span style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:${roleColor};padding:2px 7px;background:rgba(255,255,255,0.08);border-radius:10px;">${roleLabel}</span>`;
+      topbar.appendChild(badge);
+    }
+  }
+
+  // Apply marketing read-only restrictions
+  if(_currentUser && _currentUser.role === 'marketing') {
+    document.body.classList.add('role-marketing');
+    // Show a notice banner
+    const notice = document.createElement('div');
+    notice.style.cssText = 'background:rgba(59,130,246,0.12);border-bottom:1px solid rgba(59,130,246,0.25);padding:8px 24px;font-size:12px;color:rgba(255,255,255,0.7);text-align:center;letter-spacing:0.04em;';
+    notice.textContent = '👁  Marketing view — read-only access. Action buttons are disabled for this role.';
+    const dbView = document.getElementById('dashboard-view');
+    dbView.insertBefore(notice, dbView.firstChild);
+  } else {
+    document.body.classList.remove('role-marketing');
+  }
+
   loadData();
   // Auto-logout timer
   setTimeout(() => {
@@ -2811,7 +2884,13 @@ function showDashboard() { openLoginModal(); } // legacy alias
 function showLanding() {
   document.getElementById('landing-view').style.display = 'block';
   document.getElementById('dashboard-view').style.display = 'none';
-  document.body.classList.remove('dashboard-active');
+  document.body.classList.remove('dashboard-active', 'role-marketing');
+  // Clear user badge
+  const badge = document.getElementById('pbis-user-badge');
+  if(badge) badge.remove();
+  // Clear session
+  _currentUser = null;
+  try { sessionStorage.removeItem('pbis_session'); } catch(e){}
   window.scrollTo(0,0);
 }
 
@@ -3143,14 +3222,15 @@ function updateChildren(count) {
           <select name="child${i}_campus" required
             onchange="updateChildGrades(this, 'child${i}_grade_select')">
             <option value="">Select campus…</option>
-            <option value="Primary" selected>Primary Campus</option>
+            <option value="EY">Early Years Campus</option>
+            <option value="Primary">Primary Campus</option>
+            <option value="Secondary">Secondary Campus</option>
           </select>
         </div>
         <div class="form-group">
           <label>Year Group / Grade *</label>
           <select name="child${i}_grade" id="child${i}_grade_select" required>
-            <option value="">Select grade…</option>
-            ${buildGradeOptions('Primary')}
+            <option value="">Select campus first…</option>
           </select>
         </div>
       </div>
@@ -5214,7 +5294,7 @@ window.addEventListener('load', function() {
       <div class="wa-campus-info">
         <div class="wa-campus-name">Early Years Campus</div>
         <div class="wa-campus-num">+856 20 5728 0925</div>
-        <div class="wa-campus-tag">Nursery · Reception · Kindergarten</div>
+        <div class="wa-campus-tag">Toddler · Reception · Age 1+–4+</div>
       </div>
       <div class="wa-arrow">
         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#25D366" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -5230,7 +5310,7 @@ window.addEventListener('load', function() {
       <div class="wa-campus-info">
         <div class="wa-campus-name">Primary Campus</div>
         <div class="wa-campus-num">+856 20 5538 6636</div>
-        <div class="wa-campus-tag">Year 1 – Year 6</div>
+        <div class="wa-campus-tag">Year 1 – Year 6 · Age 5+–10+</div>
       </div>
       <div class="wa-arrow">
         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#25D366" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -5246,7 +5326,7 @@ window.addEventListener('load', function() {
       <div class="wa-campus-info">
         <div class="wa-campus-name">Secondary Campus</div>
         <div class="wa-campus-num">+856 20 5538 6672</div>
-        <div class="wa-campus-tag">Year 7 – Year 13 · A-Level</div>
+        <div class="wa-campus-tag">Year 7 – Year 13 · Age 11+–17+</div>
       </div>
       <div class="wa-arrow">
         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#25D366" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
