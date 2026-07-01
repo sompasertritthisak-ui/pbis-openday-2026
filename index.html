@@ -557,6 +557,12 @@ body{font-family:'DM Sans',sans-serif;background:#f4f1ea;color:var(--text);min-h
 #dashboard-view .btn-logout{display:inline-flex;align-items:center;gap:6px;background:rgba(220,38,38,0.12);border:1px solid rgba(220,38,38,0.3);color:rgba(255,100,100,0.9);padding:8px 16px;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;letter-spacing:0.04em;transition:all 0.2s;}
 #dashboard-view .btn-logout:hover{background:rgba(220,38,38,0.22);border-color:rgba(220,38,38,0.5);color:#ff8080;}
 
+/* User badge in topbar */
+#pbis-user-badge{display:flex;align-items:center;gap:10px;padding:7px 14px 7px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:24px;white-space:nowrap;}
+#pbis-user-badge .user-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;color:#0a2818;}
+#pbis-user-badge .user-name{font-size:13px;font-weight:600;color:rgba(255,255,255,0.92);letter-spacing:0.01em;}
+#pbis-user-badge .user-role{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:2px 8px;border-radius:10px;}
+
 /* ── LAYOUT ── */
 #dashboard-view .main{padding:28px 32px;max-width:1400px;margin:0 auto;}
 
@@ -2212,7 +2218,7 @@ body, html { top:0!important; }
     <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="PBIS" style="height:42px;width:auto;filter:drop-shadow(0 2px 8px rgba(201,168,76,0.3));">
     <div class="topbar-title">
       <h1>Open Day 2026 — Leads Dashboard</h1>
-      <span>Panyathip British International School · Admissions Team</span>
+      <span id="topbar-subtitle">Panyathip British International School · Admissions Team</span>
     </div>
   </div>
   <div class="topbar-right">
@@ -2878,18 +2884,31 @@ function enterDashboard() {
 
   // Show logged-in user name + role badge in the topbar
   const topbar = document.querySelector('#dashboard-view .topbar-left');
+  const subtitle = document.getElementById('topbar-subtitle');
   if(topbar && _currentUser) {
+    // Remove existing badge if any
     const existing = document.getElementById('pbis-user-badge');
-    if(!existing) {
-      const roleColor = _currentUser.role === 'admissions' ? '#c9a84c' : '#3b82f6';
-      const roleLabel = _currentUser.role === 'admissions' ? 'Admissions' : 'Marketing';
-      const badge = document.createElement('div');
-      badge.id = 'pbis-user-badge';
-      badge.style.cssText = 'display:flex;align-items:center;gap:8px;margin-left:16px;padding:5px 12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:20px;font-size:12px;color:rgba(255,255,255,0.85);white-space:nowrap;';
-      badge.innerHTML = `<span style="width:8px;height:8px;border-radius:50%;background:${roleColor};flex-shrink:0;"></span>` +
-        `<span>${_currentUser.name}</span>` +
-        `<span style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:${roleColor};padding:2px 7px;background:rgba(255,255,255,0.08);border-radius:10px;">${roleLabel}</span>`;
-      topbar.appendChild(badge);
+    if(existing) existing.remove();
+
+    const roleColor     = _currentUser.role === 'admissions' ? '#c9a84c' : '#3b82f6';
+    const roleBg        = _currentUser.role === 'admissions' ? 'rgba(201,168,76,0.15)' : 'rgba(59,130,246,0.15)';
+    const roleLabel     = _currentUser.role === 'admissions' ? 'Admissions' : 'Marketing';
+    const initials      = _currentUser.name.slice(0,2).toUpperCase();
+    const avatarBg      = _currentUser.role === 'admissions' ? '#c9a84c' : '#3b82f6';
+
+    const badge = document.createElement('div');
+    badge.id = 'pbis-user-badge';
+    badge.innerHTML =
+      `<div class="user-avatar" style="background:${avatarBg};">${initials}</div>` +
+      `<div style="display:flex;flex-direction:column;gap:2px;">` +
+        `<span class="user-name">${_currentUser.name}</span>` +
+        `<span class="user-role" style="color:${roleColor};background:${roleBg};">${roleLabel}</span>` +
+      `</div>`;
+    topbar.appendChild(badge);
+
+    // Update subtitle with logged-in user's name
+    if(subtitle) {
+      subtitle.textContent = `Panyathip British International School · Logged in as ${_currentUser.name}`;
     }
   }
 
@@ -2936,9 +2955,11 @@ function confirmLogout() {
   _currentUser = null;
   _sessionExpiry = 0;
   try { sessionStorage.removeItem('pbis_session'); } catch(e){}
-  // Remove badge
+  // Remove badge and reset subtitle
   const badge = document.getElementById('pbis-user-badge');
   if(badge) badge.remove();
+  const subtitle = document.getElementById('topbar-subtitle');
+  if(subtitle) subtitle.textContent = 'Panyathip British International School · Admissions Team';
   // Remove marketing notice if present
   const notices = document.querySelectorAll('#dashboard-view > div.marketing-notice');
   notices.forEach(n => n.remove());
@@ -2959,6 +2980,8 @@ function showLanding() {
   try { sessionStorage.removeItem('pbis_session'); } catch(e){}
   const badge = document.getElementById('pbis-user-badge');
   if(badge) badge.remove();
+  const subtitle = document.getElementById('topbar-subtitle');
+  if(subtitle) subtitle.textContent = 'Panyathip British International School · Admissions Team';
   document.body.classList.remove('dashboard-active', 'role-marketing');
   document.body.classList.add('logged-out');
   document.getElementById('landing-view').style.display = 'none';
