@@ -3243,14 +3243,12 @@ const CAMPUS_GRADES = {
   ]
 };
 
-// ── Build term options Aug/Jan from 2026 to 2030
+// ── Fixed term options — only two available
 function buildTermOptions() {
-  const terms = [];
-  for (let yr = 2026; yr <= 2030; yr++) {
-    terms.push(`August ${yr} (Term 1)`);
-    terms.push(`January ${yr + 1} (Term 2)`);
-  }
-  return terms;
+  return [
+    'August 2026 (Academic Year 2026 · Term 1)',
+    'January 2027 (Academic Year 2027 · Term 2)',
+  ];
 }
 
 // ── Build grade <optgroup> options based on selected campus
@@ -3311,7 +3309,7 @@ function updateChildren(count) {
         </div>
       </div>
 
-      <!-- Campus for this child + Grade -->
+      <!-- Campus for this child -->
       <div class="form-row">
         <div class="form-group">
           <label>Campus for This Child *</label>
@@ -3321,12 +3319,6 @@ function updateChildren(count) {
             <option value="EY">Early Years Campus</option>
             <option value="Primary">Primary Campus</option>
             <option value="Secondary">Secondary Campus</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Year Group / Grade *</label>
-          <select name="child${i}_grade" id="child${i}_grade_select" required>
-            <option value="">Select campus first…</option>
           </select>
         </div>
       </div>
