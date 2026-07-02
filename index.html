@@ -2880,6 +2880,15 @@ function enterDashboard() {
   document.getElementById('landing-view').style.display = 'none';
   document.getElementById('dashboard-view').style.display = 'block';
   document.body.classList.add('dashboard-active');
+
+  // ── Wipe stale local cache on every login so Sheets is always the source of truth
+  try {
+    localStorage.removeItem('pbis_leads');
+    localStorage.removeItem('pbis_pending_mutations');
+    localStorage.removeItem('pbis_overdue');
+  } catch(e) {}
+  _leadsCache = null;
+  _pendingMutations = {};
   window.scrollTo(0,0);
 
   // Show logged-in user name + role badge in the topbar
@@ -3443,11 +3452,9 @@ function getLeads() {
   if(cache !== null && (Date.now() - _lastFetch) < CACHE_TTL) {
     return mergePending(cache);
   }
-  // Stale — return merged localStorage backup while fetch is in progress
-  try {
-    const local = JSON.parse(localStorage.getItem('pbis_leads') || '[]');
-    return mergePending(local);
-  } catch(e) { return []; }
+  // No valid in-memory cache — return empty while fetch is in progress
+  // (never fall back to localStorage which may have stale/deleted records)
+  return mergePending([]);
 }
 
 // PRIMARY: fetch tour request leads from Google Sheets
@@ -3501,12 +3508,9 @@ async function fetchLeadsFromSheets() {
     return merged;
 
   } catch(err) {
-    console.warn('Sheets fetch failed — using local cache:', err);
+    console.warn('Sheets fetch failed:', err);
     updateSyncStatus('error');
-    try {
-      const local = JSON.parse(localStorage.getItem('pbis_leads') || '[]');
-      return mergePending(local);
-    } catch(e) { return []; }
+    return mergePending(_leadsCache || []);
   }
 }
 
@@ -4165,11 +4169,18 @@ function deleteLead(ts) {
   if(!confirm('Remove this lead? This will also remove it from Google Sheets.')) return;
   const lead = getLeads().find(l => l.ts === ts);
 
-  // Optimistic local update
+  // Optimistic local update — remove from in-memory cache
   applyLocalMutation(leads => {
     const idx = leads.findIndex(l => l.ts === ts);
     if(idx !== -1) leads.splice(idx, 1);
   });
+
+  // Also scrub directly from localStorage so it can't return from stale cache
+  try {
+    const stored = JSON.parse(localStorage.getItem('pbis_leads') || '[]');
+    const cleaned = stored.filter(l => l.ts !== ts);
+    localStorage.setItem('pbis_leads', JSON.stringify(cleaned));
+  } catch(e) {}
 
   // Sync deletion to Google Sheets
   postToSheets({
